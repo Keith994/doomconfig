@@ -20,7 +20,7 @@
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type 'relative)
+(setq display-line-numbers-type t)
 
 ;; Manually edit .local/custom.el will break doom updates
 (when (file-directory-p custom-file)
@@ -51,3 +51,10 @@
 
 ;; delete to trash
 (setq delete-by-moving-to-trash t)
+
+;; doom modeline settings
+(setq doom-modeline-vcs-max-length 80
+      doom-modeline-buffer-file-name-style 'relative-from-project
+      doom-modeline-icon t
+      doom-modeline-major-mode-icon t
+      doom-modeline-enable-word-count t)

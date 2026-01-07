@@ -5,17 +5,23 @@
       (:prefix ("d" . "debug")
         :desc "dape breakpoint toggle" "b" #'+my/dape-breakpoint-toggle
         :desc "dape breakpoint remove all" "B" #'+my/dape-breakpoint-remove-all
-        ))
+        )
+      :desc "Search project" "s g"  #'+default/search-project
+      )
+
+(defalias 'delete-window-alias 'delete-window)
 
 (map!
  :nv "gr" #'+lookup/references
  :nv "gi" #'+lookup/implementations
  :nv "gD" #'xref-find-definitions-other-window
- :nv ",c" #'delete-window
+ :n ",c" #'delete-window-alias
  :nv ",w" #'save-buffer
  :nv ",f" #'format-all-region-or-buffer
  :nv ",p" #'display-which-path
+ :i "C-k" #'kill-line
  "M-`"   #'other-frame
+ :
  )
 
 (map!

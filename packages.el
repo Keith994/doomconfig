@@ -110,5 +110,6 @@
   (progn
     (package! lsp-docker)))
 (package! catppuccin-theme)
+(package! aider :recipe (:host github :repo "tninja/aider.el"))
 
 ; (unpin! :completion :lang :tools)
