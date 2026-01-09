@@ -1,4 +1,4 @@
-;;; 4-misc.el -*- lexical-binding: t; -*-
+;;; +use-package.el -*- lexical-binding: t; -*-
 
 (use-package! screenshot
   :defer t)
@@ -147,3 +147,121 @@ If MULTI-LINE, make every path occupy a new line."
         gcmh-auto-idle-delay-factor 3                  ; 减少因子
         gcmh-high-cons-threshold (* 1 1024 1024 1024)  ; 2GB（原来是64MB）
         gcmh-verbose nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; MISC
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(add-hook! compilation-mode #'visual-line-mode)
+
+;; evil-escape 包
+(use-package! evil-escape
+  :config
+  (setq evil-escape-key-sequence "jk")  ; 或 "kj"
+  (setq evil-escape-delay 0.2)          ; 延迟时间（秒）
+  (evil-escape-mode 1))
+
+(use-package! which-func
+  :defer t
+  :commands which-function)
+
+(use-package! protobuf-mode
+  :defer t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; AI
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(set-evil-initial-state!
+  '(comint-mode)
+  'insert)
+
+(add-hook! 'comint-mode-hook #'visual-line-mode)
+
+(use-package! aider
+  :config
+  (setq aider-args '("--model" "deepseek/deepseek-coder"))
+  (require 'aider-doom))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; JAVA
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;; (set-formatter! 'google-java-format "google-java-format -" :modes '(java-mode))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DEBUG & RUN
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(when (modulep! :tools debugger)
+  (defun +my/dape-breakpoint-toggle ()
+    (interactive)
+    (require 'dape)
+    (dape-breakpoint-toggle)
+    (+go/write-project-breakpoints))
+
+  (defun +my/dape-breakpoint-remove-all ()
+    (interactive)
+    (require 'dape)
+    (dape-breakpoint-remove-all)
+    (+go/write-project-breakpoints))
+
+  (map! :leader
+        (:prefix ("d" . "debug")
+         :desc "dape breakpoint toggle" "b" #'+my/dape-breakpoint-toggle
+         :desc "dape breakpoint remove all" "B" #'+my/dape-breakpoint-remove-all
+         ))
+
+  (after! dape
+    (setq dape-configs (assq-delete-all 'dlv dape-configs))
+    (add-to-list 'dape-configs
+                 `(delve
+                   modes (go-mode go-ts-mode)
+                   ensure dape-ensure-command
+                   fn (dape-config-autoport dape-config-tramp)
+                   command "dlv"
+                   command-args ("dap" "--listen" "127.0.0.1::autoport")
+                   command-insert-stderr t
+                   command-cwd (lambda()(if (string-suffix-p "_test.go" (buffer-name))
+                                            default-directory (dape-cwd)))
+                   port :autoport
+                   :type "debug"
+                   :request "launch"
+                   :mode (lambda() (if (string-suffix-p "_test.go" (buffer-name)) "test" "debug"))
+                   :program "."
+                   :cwd "."
+                   :args (lambda()
+                           (if (string-suffix-p "_test.go" (buffer-name))
+                               (save-excursion
+                                 (when (re-search-backward "^func[ \t]+\\(\\(\\w\\|\\s_\\)+\\)" nil t)
+                                   (let* ((test-name (match-string 1))
+                                          (test-regexp (concat "^" test-name "$")))
+                                     `["-test.run" ,test-regexp])))
+                             []))))
+    ; 增加java调试支持
+    (add-to-list 'dape-configs
+             `(:modes (java-ts-mode java-mode)
+               :ensure dape-ensure-command
+               :fn nil
+               :command ,(expand-file-name "/usr/lib/jvm/java-21-openjdk/bin/java")
+               :command-args ("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+                              "-jar"
+                              ,(expand-file-name "~/.local/share/nvim/mason/share/java-debug-adapter/com.microsoft.java.debug.plugin.jar"))
+               :command-insert-stderr t
+               :command-cwd (lambda () (dape-cwd))
+               :port 5005
+               :type "java"
+               :request "attach"
+               :name "Java Attach"
+               :hostName "localhost"
+               :port 5005
+               :wait-for-port t))  ; 添加这个很重要
+    ))
+
+(after! corfu
+        (setq corfu-preselect t)
+        (map! :map corfu-mode-map
+          :ni "C-n" nil
+          :ni "C-p" nil))

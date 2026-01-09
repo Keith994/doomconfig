@@ -1,7 +1,7 @@
-;;; 2-lsp.el -*- lexical-binding: t; -*-
+;;; +lsp.el -*- lexical-binding: t; -*-
 ;;
-;; Use format-all by default
-(setq +format-with-lsp nil)
+; ;; Use format-all by default
+; (setq +format-with-lsp nil)
 
 (setq +lsp-prompt-to-install-server 'quiet)
 
@@ -81,7 +81,7 @@
         lsp-ui-doc-max-height 15
         lsp-ui-doc-max-width 100))
 
-(add-hook! 'go-ts-mode-hook (add-hook! 'after-save-hook :local #'+go/write-project-breakpoints))
+;; (add-hook! 'go-ts-mode-hook (add-hook! 'after-save-hook :local #'+go/write-project-breakpoints))
 (add-hook! 'java-ts-mode-hook  #'lsp)
 
 ;; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file

@@ -1,4 +1,4 @@
-;;; 7-keys.el -*- lexical-binding: t; -*-
+;;; +keys.el -*- lexical-binding: t; -*-
 
 
 (map! :leader
@@ -11,17 +11,21 @@
 
 (defalias 'delete-window-alias 'delete-window)
 
+
 (map!
  :nv "gr" #'+lookup/references
  :nv "gi" #'+lookup/implementations
  :nv "gD" #'xref-find-definitions-other-window
- :n ",c" #'delete-window-alias
+ :n ",c" #'+window/smart-close-window-enhanced
  :nv ",w" #'save-buffer
  :nv ",f" #'format-all-region-or-buffer
  :nv ",p" #'display-which-path
- :i "C-k" #'kill-line
- "M-`"   #'other-frame
- :
+ :ni "C-k" #'kill-line
+ :ni "C-n" #'next-line
+ :ni "C-p" #'previous-line
+ "M-`"  #'other-frame
+ :n "]g"   #'+vc-gutter/next-hunk
+ :n "[g"   #'+vc-gutter/previous-hunk
  )
 
 (map!
@@ -93,4 +97,9 @@
  (:after magit-blame
          (:map magit-blame-mode-map
           :n "o" #'magit-blame--git-link-commit))
+ (:after corfu-mode
+         (:map corfu-mode-map
+          :ni "C-n" nil
+          :ni "C-p" nil))
  )
+

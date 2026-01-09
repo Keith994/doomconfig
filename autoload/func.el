@@ -1,4 +1,4 @@
-;;; autoload/prog.el -*- lexical-binding: t; -*-
+;;; autoload/func.el -*- lexical-binding: t; -*-
 
 (defun my/realgud-eval-nth-name-forward (n)
   (interactive "p")
@@ -290,3 +290,40 @@
           (insert (format "package %s\n\nimport (\n\t\"testing\"\n)\n\n"
                           (go-package-name current-dir)))
           (save-buffer))))))
+
+
+(defun +window/smart-close-window-enhanced ()
+  "智能关闭窗口：
+   - 多个窗口时：关闭当前窗口，保留缓冲区
+   - 单个窗口时：杀死当前缓冲区，切换到最近使用的其他缓冲区
+   - 如果当前缓冲区有未保存的修改，会提示保存"
+  (interactive)
+  (let ((current-buffer (current-buffer))
+        (window-count (length (window-list))))
+    
+    (if (> window-count 1)
+        ;; 情况1：有多个窗口
+        (delete-window)
+      
+      ;; 情况2：只剩一个窗口
+      (let ((other-buffers 
+             (seq-filter (lambda (buf)
+                           (and (not (eq buf current-buffer))
+                                (not (string-prefix-p " " (buffer-name buf)))))
+                         (buffer-list))))
+        
+        (if (buffer-modified-p current-buffer)
+            ;; 如果缓冲区已修改，先询问是否保存
+            (if (y-or-n-p (format "Buffer %s modified. Save it? " 
+                                   (buffer-name current-buffer)))
+                (save-buffer)))
+        
+        (kill-buffer current-buffer)
+        
+        (cond
+         ;; 如果有其他非特殊缓冲区
+         (other-buffers
+          (switch-to-buffer (car other-buffers)))
+         ;; 如果没有其他缓冲区，创建新缓冲区
+         (t
+          (switch-to-buffer (generate-new-buffer "*untitled*"))))))))
