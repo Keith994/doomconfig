@@ -7,18 +7,24 @@
         :desc "dape breakpoint remove all" "B" #'+my/dape-breakpoint-remove-all
         )
       :desc "Search project" "s g"  #'+default/search-project
+      :desc "Revert git buffer" "g h r" #'+vc-gutter/revert-hunk
       )
 
 (defalias 'delete-window-alias 'delete-window)
 
 
 (map!
+ :n ";" #'execute-extended-command
+ :n "H" #'evil-beginning-of-line
+ :n "L" #'evil-end-of-line
+ :n "gy" #'+lookup/documentation
+ :n "gR" #'lsp-rename
  :nv "gr" #'+lookup/references
  :nv "gi" #'+lookup/implementations
  :nv "gD" #'xref-find-definitions-other-window
- :n ",c" #'+window/smart-close-window-enhanced
+ :nv ",c" #'+my/smart-close-window-enhanced
  :nv ",w" #'save-buffer
- :nv ",f" #'format-all-region-or-buffer
+ :nv ",f" #'+my/lsp-formatter
  :nv ",p" #'display-which-path
  :ni "C-k" #'kill-line
  :ni "C-n" #'next-line
@@ -32,7 +38,9 @@
  (:map prog-mode-map
   :i "TAB" #'doom/dumb-indent
   :i "<backtab>" #'doom/dumb-dedent
-  :n "ga" #'lsp-execute-code-action)
+  :n "ga" #'lsp-execute-code-action
+  :n "]e" #'flymake-goto-next-error
+  :n "[e" #'flymake-goto-prev-error)
 
  (:after dirvish
          (:map dirvish-mode-map
@@ -71,7 +79,10 @@
  (:when (modulep! :completion vertico)
    (:after vertico
     :map vertico-map
-    "C-j" nil "C-k" nil
+    "C-j" nil 
+    "C-k" nil
+    "C-." nil
+    "C-." #'embark-act
     "C-j"   #'+vertico/embark-preview
     "C-n"   #'vertico-next
     "C-M-n" #'+vertico/next-candidate-preview

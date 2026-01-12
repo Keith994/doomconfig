@@ -51,7 +51,7 @@
     (realgud:cmd-eval expr)
     ))
 
-(defun +my//realtime-elisp-doc-function ()
+(defun +my/realtime-elisp-doc-function ()
   (-when-let* ((w (selected-window))
                (s (intern-soft (current-word))))
     (describe-symbol s)
@@ -291,8 +291,20 @@
                           (go-package-name current-dir)))
           (save-buffer))))))
 
+;;;###autoload
+(defun +my/lsp-formatter (beg end)
+    "使用 lsp-mode 格式化区域"
+    (interactive "r")
+    (condition-case err
+      (progn
+        (if (use-region-p)
+            (lsp-format-region beg end)
+          (lsp-format-buffer))
+        (font-lock-update)
+        (message "formatted with custom formatter"))
+      (error nil)))
 
-(defun +window/smart-close-window-enhanced ()
+(defun +my/smart-close-window-enhanced ()
   "智能关闭窗口：
    - 多个窗口时：关闭当前窗口，保留缓冲区
    - 单个窗口时：杀死当前缓冲区，切换到最近使用的其他缓冲区
@@ -327,3 +339,5 @@
          ;; 如果没有其他缓冲区，创建新缓冲区
          (t
           (switch-to-buffer (generate-new-buffer "*untitled*"))))))))
+
+

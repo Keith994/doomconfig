@@ -8,7 +8,7 @@
 (setq doom-theme 'catppuccin)
 
 ;; doom-init-ui-hook
-(remove-hook 'doom-init-ui-hook #'blink-cursor-mode)
+;; (remove-hook 'doom-init-ui-hook #'blink-cursor-mode)
 
 ;; modeline settings
 (after! doom-modeline
@@ -25,3 +25,6 @@
 (unless (display-graphic-p)
   (custom-set-faces!
     `(mode-line-inactive :background ,(doom-darken (doom-color 'bg-alt) 0.05) :foreground ,(doom-color 'fg))))
+
+(unless (display-graphic-p)
+  (setq evil-insert-state-cursor 'bar))  ; 终端中强制为竖条

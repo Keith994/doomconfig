@@ -82,7 +82,7 @@
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
 ;; misc
-; (package! format-all)
+;;(package! format-all)
 (package! keycast)
 (package! evil-string-inflection)
 (package! evil-escape)

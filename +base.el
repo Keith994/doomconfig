@@ -97,3 +97,25 @@
           ("FIXME" . ,(doom-color 'red))
           ("XXX"   . ,(doom-color 'blue))
           ("XXXX"  . ,(doom-color 'blue)))))
+
+;; 使用 wl-clipboard 实现 Wayland 剪贴板功能
+(when (and (eq system-type 'gnu/linux)
+           (getenv "WAYLAND_DISPLAY")  ; 确保在 Wayland 环境
+           (executable-find "wl-copy")) ; 检查 wl-clipboard 是否存在
+  (defun wl-copy-selection (str)
+    "Copy STR to Wayland clipboard using wl-copy."
+    (with-temp-buffer
+      (insert str)
+      (call-process-region (point-min) (point-max) "wl-copy" t nil t)))
+
+  (defun wl-paste-selection ()
+    "Paste from Wayland clipboard using wl-paste."
+    (let ((default-directory "~"))
+      (string-trim (shell-command-to-string "wl-paste --no-newline"))))
+
+  ;; 确保 Emacs 正在使用这些自定义函数
+  (setq interprogram-cut-function 'wl-copy-selection
+        interprogram-paste-function 'wl-paste-selection)
+
+  ;; 启用 Emacs 内的剪贴板功能
+  (message "Configured Wayland clipboard support via wl-clipboard."))

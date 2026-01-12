@@ -81,9 +81,6 @@
         lsp-ui-doc-max-height 15
         lsp-ui-doc-max-width 100))
 
-;; (add-hook! 'go-ts-mode-hook (add-hook! 'after-save-hook :local #'+go/write-project-breakpoints))
-(add-hook! 'java-ts-mode-hook  #'lsp)
-
 ;; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file
 (defun lsp-booster--advice-json-parse (old-fn &rest args)
   "Try to parse bytecode instead of json."
