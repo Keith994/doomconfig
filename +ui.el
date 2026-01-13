@@ -1,30 +1,80 @@
 ;;; +ui.el -*- lexical-binding: t; -*-
 
-;; Font settings
-(setq doom-font (font-spec :family "Maple Mono NF CN" :size 14))
+;; ============================================================================
+;; Theme & Appearance
+;; ============================================================================
+(setq doom-font (font-spec :family "Maple Mono NF CN" :size 14)
+      catppuccin-flavor 'mocha
+      doom-theme 'catppuccin
+      +workspaces-on-switch-project-behavior t)
 
-;; The catppuccin theme
-(setq catppuccin-flavor 'mocha) ;; or 'latte, 'macchiato, or 'mocha
-(setq doom-theme 'catppuccin)
-
-;; doom-init-ui-hook
-;; (remove-hook 'doom-init-ui-hook #'blink-cursor-mode)
-
-;; modeline settings
+;; ============================================================================
+;; Doom Modeline
+;; ============================================================================
 (after! doom-modeline
-  (setq doom-modeline-buffer-file-name-style 'truncate-with-project
+  (setq doom-modeline-vcs-max-length 80
+        doom-modeline-buffer-file-name-style 'relative-from-project
+        doom-modeline-icon t
         doom-modeline-major-mode-icon t
-        ;; My mac vsplit screen won't fit
+        doom-modeline-enable-word-count t
         doom-modeline-window-width-limit (- fill-column 10)))
 
-(setq +workspaces-on-switch-project-behavior t)
+;; ============================================================================
+;; Window & Buffer Management
+;; ============================================================================
+(set-popup-rules! '(("^\\*helpful" :size 0.35)
+                    ("^\\*Ibuffer\\*$" :size 0.35)
+                    ("^\\*info.*" :size 80 :side right)
+                    ("^\\*Man.*" :size 80 :side right)
+                    ("^\\*keycast.*" :size 50 :side right)
+                    ("^\\*Customize" :actions display-buffer)
+                    ("^\\*edit-indirect" :size 0.6)
+                    ("^\\*YASnippet Tables\\*$" :size 0.35)
+                    ("^\\*grep\\*$" :size 0.35)
+                    ("^\\*pytest\\*" :size 0.35)
+                    ("^\\*Anaconda\\*$" :size 0.35)
+                    ("^\\*aider.*$" :ignore t)
+                    ("\\*Async Shell Command\\*$" :side bottom :size 0.30 :select t)
+                    ("\\*.*server log\\*$" :side top :size 0.20 :select nil)
+                    ((lambda (buf _) (with-current-buffer buf (eq major-mode 'forge-topic-mode))) :size 0.35)))
 
+;; Aider specific window placement
+(after! aider
+  (add-to-list 'display-buffer-alist
+              '((major-mode . #'aider-comint-mode)
+                (display-buffer-in-side-window)
+                (side . right)
+                (slot . 0)
+                (window-width . 0.4))))
+
+;; ============================================================================
+;; Syntax Highlighting & Colors
+;; ============================================================================
 (defface breakpoint-enabled '((t)) "Breakpoint face.")
 
-;; for terminal
+;; HL-Todo configuration
+(custom-theme-set-faces! doom-theme
+  `(hl-todo :foreground ,(doom-color 'bg)))
+
+(after! hl-todo
+  (setq hl-todo-color-background t
+        hl-todo-keyword-faces
+        `(("TODO"  . ,(doom-color 'orange))
+          ("HACK"  . ,(doom-color 'orange))
+          ("TEMP"  . ,(doom-color 'orange))
+          ("DONE"  . ,(doom-color 'green))
+          ("NOTE"  . ,(doom-color 'green))
+          ("DONT"  . ,(doom-color 'red))
+          ("DEBUG"  . ,(doom-color 'red))
+          ("FAIL"  . ,(doom-color 'red))
+          ("FIXME" . ,(doom-color 'red))
+          ("XXX"   . ,(doom-color 'blue))
+          ("XXXX"  . ,(doom-color 'blue)))))
+
+;; ============================================================================
+;; Terminal-specific Settings
+;; ============================================================================
 (unless (display-graphic-p)
   (custom-set-faces!
-    `(mode-line-inactive :background ,(doom-darken (doom-color 'bg-alt) 0.05) :foreground ,(doom-color 'fg))))
-
-(unless (display-graphic-p)
-  (setq evil-insert-state-cursor 'bar))  ; 终端中强制为竖条
+    `(mode-line-inactive :background ,(doom-darken (doom-color 'bg-alt) 0.05) :foreground ,(doom-color 'fg)))
+  (setq evil-insert-state-cursor 'bar))

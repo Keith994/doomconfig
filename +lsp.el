@@ -53,7 +53,7 @@
 (after! flycheck
   (add-hook! prog-mode #'flycheck-mode)
 
-  ;; 不要 tooltip / popup / inline 自动显示
+
   (setq flycheck-auto-display-errors-after-checking nil)
   (when (fboundp 'flycheck-popup-tip-mode) (flycheck-popup-tip-mode -1))
   (when (fboundp 'flycheck-pos-tip-mode)   (flycheck-pos-tip-mode -1))
