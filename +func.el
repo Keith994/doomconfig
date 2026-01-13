@@ -1,4 +1,4 @@
-;;; autoload/func.el -*- lexical-binding: t; -*-
+;;; +func.el -*- lexical-binding: t; -*-
 
 (defun my/realgud-eval-nth-name-forward (n)
   (interactive "p")

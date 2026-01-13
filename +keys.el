@@ -21,6 +21,7 @@
  :n "gR" #'lsp-rename
  :nv "gr" #'+lookup/references
  :nv "gi" #'+lookup/implementations
+ :nv "gl" #'flycheck-display-error-at-point
  :nv "gD" #'xref-find-definitions-other-window
  :nv ",c" #'+my/smart-close-window-enhanced
  :nv ",w" #'save-buffer
@@ -39,8 +40,8 @@
   :i "TAB" #'doom/dumb-indent
   :i "<backtab>" #'doom/dumb-dedent
   :n "ga" #'lsp-execute-code-action
-  :n "]e" #'flymake-goto-next-error
-  :n "[e" #'flymake-goto-prev-error)
+  :n "]e" #'flycheck-next-error
+  :n "[e" #'flycheck-previous-error)
 
  (:after dirvish
          (:map dirvish-mode-map

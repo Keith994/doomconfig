@@ -99,6 +99,8 @@
 ;; (package! md-roam :recipe (:host github :repo "nobiot/md-roam"))
 
 ;; programming
+;;
+(package! lsp-java)
 (package! bazel)
 (package! jinja2-mode)
 (package! protobuf-mode)

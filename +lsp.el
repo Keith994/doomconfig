@@ -44,10 +44,34 @@
                                                  :default t)]
               lsp-java-java-path (concat java_path "/bin/java")))))
 
+(add-hook! prog-mode
+  (flymake-mode -1))
+
+;; 全局不使用 flymake
+(setq flymake-no-changes-timeout nil) ;; 可选：避免 flymake 计时器
+
+(after! flycheck
+  (add-hook! prog-mode #'flycheck-mode)
+
+  ;; 不要 tooltip / popup / inline 自动显示
+  (setq flycheck-auto-display-errors-after-checking nil)
+  (when (fboundp 'flycheck-popup-tip-mode) (flycheck-popup-tip-mode -1))
+  (when (fboundp 'flycheck-pos-tip-mode)   (flycheck-pos-tip-mode -1))
+  (when (fboundp 'flycheck-inline-mode)    (flycheck-inline-mode -1))
+
+  ;; A. 只关“自动检查”，完全手动触发（最省性能）
+  ;;   - 你要手动跑：M-x flycheck-buffer
+  ; (setq flycheck-check-syntax-automatically nil)
+
+  ;; B. 如果你仍想“保存时检查”，就用这一行替换上面那行：
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  )
+
 (after! lsp-mode
   (add-hook! 'lsp-help-mode-hook (visual-line-mode 1))
   (setq lsp-log-io nil
         lsp-file-watch-threshold 4000
+        lsp-diagnostics-provider :none
         lsp-headerline-breadcrumb-enable t
         lsp-headerline-breadcrumb-icons-enable nil
         lsp-headerline-breadcrumb-segments '(file symbols)
