@@ -1,55 +1,19 @@
 ;;; +func.el -*- lexical-binding: t; -*-
 
-(defun my/realgud-eval-nth-name-forward (n)
-  (interactive "p")
-  (save-excursion
-    (let (name)
-      (while (and (> n 0) (< (point) (point-max)))
-        (let ((p (point)))
-          (if (not (c-forward-name))
-              (progn
-                (c-forward-token-2)
-                (when (= (point) p) (forward-char 1)))
-            (setq name (buffer-substring-no-properties p (point)))
-            (cl-decf n 1))))
-      (when name
-        (realgud:cmd-eval name)
-        nil))))
-
-(defun my/realgud-eval-nth-name-backward (n)
-  (interactive "p")
-  (save-excursion
-    (let (name)
-      (while (and (> n 0) (> (point) (point-min)))
-        (let ((p (point)))
-          (c-backward-token-2)
-          (when (= (point) p) (backward-char 1))
-          (setq p (point))
-          (when (c-forward-name)
-            (setq name (buffer-substring-no-properties p (point)))
-            (goto-char p)
-            (cl-decf n 1))))
-      (when name
-        (realgud:cmd-eval name)
-        nil))))
-
 (defun my/realgud-eval-region-or-word-at-point ()
+  "Evaluate region or word at point in realgud."
   (interactive)
-  (when-let*
-      ((cmdbuf (realgud-get-cmdbuf))
-       (process (get-buffer-process cmdbuf))
-       (expr
-        (if (evil-visual-state-p)
-            (let ((range (evil-visual-range)))
-              (buffer-substring-no-properties (evil-range-beginning range)
-                                              (evil-range-end range)))
-          (word-at-point)
-          )))
+  (when-let* ((cmdbuf (realgud-get-cmdbuf))
+              (process (get-buffer-process cmdbuf))
+              (expr (if (evil-visual-state-p)
+                        (let ((range (evil-visual-range)))
+                          (buffer-substring-no-properties (evil-range-beginning range)
+                                                          (evil-range-end range)))
+                      (word-at-point))))
     (with-current-buffer cmdbuf
       (setq realgud:process-filter-save (process-filter process))
       (set-process-filter process 'realgud:eval-process-output))
-    (realgud:cmd-eval expr)
-    ))
+    (realgud:cmd-eval expr)))
 
 (defun +my/realtime-elisp-doc-function ()
   (-when-let* ((w (selected-window))
@@ -67,6 +31,7 @@
 
 ;;;###autoload
 (defun +my/realgud-eval-nth-name-forward (n)
+  "Evaluate the Nth name forward in realgud."
   (interactive "p")
   (save-excursion
     (let (name)
@@ -83,6 +48,7 @@
 
 ;;;###autoload
 (defun +my/realgud-eval-nth-name-backward (n)
+  "Evaluate the Nth name backward in realgud."
   (interactive "p")
   (save-excursion
     (let (name)
@@ -292,52 +258,56 @@
           (save-buffer))))))
 
 ;;;###autoload
+(defun dirvish-copy-file-relative-path (&optional multi-line)
+  "Copy filepath of marked files.
+If MULTI-LINE, make every path occupy a new line."
+  (interactive "P")
+  (let* ((files (mapcar (lambda (file)
+                          (file-relative-name (file-local-name file)))
+                        (dired-get-marked-files)))
+         (names (mapconcat #'concat files (if multi-line "\n" " "))))
+    (dirvish--kill-and-echo (if multi-line (concat "\n" names) names))))
+
+;;;###autoload
 (defun +my/lsp-formatter (beg end)
-    "使用 lsp-mode 格式化区域"
-    (interactive "r")
-    (condition-case err
-      (progn
-        (if (use-region-p)
-            (lsp-format-region beg end)
-          (lsp-format-buffer))
-        (font-lock-update)
-        (message "formatted with custom formatter"))
-      (error nil)))
+  "Format region or buffer using lsp-mode."
+  (interactive "r")
+  (condition-case err
+    (progn
+      (if (use-region-p)
+          (lsp-format-region beg end)
+        (lsp-format-buffer))
+      (font-lock-update)
+      (message "Formatted with LSP"))
+    (error (message "Formatting failed: %s" err))))
 
 (defun +my/smart-close-window-enhanced ()
-  "智能关闭窗口：
-   - 多个窗口时：关闭当前窗口，保留缓冲区
-   - 单个窗口时：杀死当前缓冲区，切换到最近使用的其他缓冲区
-   - 如果当前缓冲区有未保存的修改，会提示保存"
+  "Smart window/buffer management:
+   - Multiple windows: close current window, keep buffer
+   - Single window: kill buffer, switch to another buffer
+   - Prompt to save if buffer modified"
   (interactive)
   (let ((current-buffer (current-buffer))
         (window-count (length (window-list))))
     
     (if (> window-count 1)
-        ;; 情况1：有多个窗口
+        ;; Multiple windows: close window
         (delete-window)
       
-      ;; 情况2：只剩一个窗口
-      (let ((other-buffers 
-             (seq-filter (lambda (buf)
-                           (and (not (eq buf current-buffer))
-                                (not (string-prefix-p " " (buffer-name buf)))))
-                         (buffer-list))))
-        
-        (if (buffer-modified-p current-buffer)
-            ;; 如果缓冲区已修改，先询问是否保存
-            (if (y-or-n-p (format "Buffer %s modified. Save it? " 
-                                   (buffer-name current-buffer)))
-                (save-buffer)))
-        
-        (kill-buffer current-buffer)
-        
-        (cond
-         ;; 如果有其他非特殊缓冲区
-         (other-buffers
-          (switch-to-buffer (car other-buffers)))
-         ;; 如果没有其他缓冲区，创建新缓冲区
-         (t
-          (switch-to-buffer (generate-new-buffer "*untitled*"))))))))
+      ;; Single window: manage buffer
+      (when (buffer-modified-p current-buffer)
+        (when (y-or-n-p (format "Save buffer %s? " (buffer-name current-buffer)))
+          (save-buffer)))
+      
+      (kill-buffer current-buffer)
+      
+      ;; Switch to another buffer or create new one
+      (let ((other-buffers (seq-filter (lambda (buf)
+                                         (and (not (eq buf current-buffer))
+                                              (not (string-prefix-p " " (buffer-name buf)))))
+                                       (buffer-list))))
+        (if other-buffers
+            (switch-to-buffer (car other-buffers))
+          (switch-to-buffer (generate-new-buffer "*scratch*")))))))
 
 

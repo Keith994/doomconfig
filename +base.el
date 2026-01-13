@@ -30,21 +30,18 @@
 ;; ============================================================================
 ;; Performance Optimizations
 ;; ============================================================================
-(setq +lsp--optimization-init-p t
-      +lsp--default-read-process-output-max (* 16 1024 1024)
-      +lsp--default-gcmh-high-cons-threshold (* 4 1024 1024 1024)
-      inhibit-compacting-font-caches t
+(setq inhibit-compacting-font-caches t
       read-process-output-max (* 16 1024 1024)
-      gc-cons-threshold (* 1 1024 1024 1024)
-      gc-cons-percentage 0.7
-      doom-gc-cons-threshold (* 1 1024 1024 1024)
-      doom-gc-cons-upper-limit (* 1 1024 1024 1024)
-      doom-gc-cons-percentage 0.6)
+      gc-cons-threshold (* 2 1024 1024 1024)  ; 2GB
+      gc-cons-percentage 0.6
+      doom-gc-cons-threshold (* 2 1024 1024 1024)
+      doom-gc-cons-upper-limit (* 4 1024 1024 1024)
+      doom-gc-cons-percentage 0.5)
 
 (after! gcmh
-  (setq gcmh-idle-delay 60
-        gcmh-auto-idle-delay-factor 3
-        gcmh-high-cons-threshold (* 1 1024 1024 1024)
+  (setq gcmh-idle-delay 30          ; 更频繁的GC
+        gcmh-auto-idle-delay-factor 2
+        gcmh-high-cons-threshold (* 2 1024 1024 1024)
         gcmh-verbose nil))
 
 ;; ============================================================================
@@ -79,5 +76,5 @@
 ;; ============================================================================
 ;; Custom File Warning
 ;; ============================================================================
-(when (file-directory-p custom-file)
-  (message (concat "Please delete " custom-file ". And customization in config.el and ui.el.")))
+(when (file-exists-p custom-file)
+  (message "Custom file detected. Use config.el and +ui.el for customizations instead."))

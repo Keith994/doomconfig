@@ -9,17 +9,6 @@
       +workspaces-on-switch-project-behavior t)
 
 ;; ============================================================================
-;; Doom Modeline
-;; ============================================================================
-(after! doom-modeline
-  (setq doom-modeline-vcs-max-length 80
-        doom-modeline-buffer-file-name-style 'relative-from-project
-        doom-modeline-icon t
-        doom-modeline-major-mode-icon t
-        doom-modeline-enable-word-count t
-        doom-modeline-window-width-limit (- fill-column 10)))
-
-;; ============================================================================
 ;; Window & Buffer Management
 ;; ============================================================================
 (set-popup-rules! '(("^\\*helpful" :size 0.35)
@@ -52,24 +41,13 @@
 ;; ============================================================================
 (defface breakpoint-enabled '((t)) "Breakpoint face.")
 
-;; HL-Todo configuration
-(custom-theme-set-faces! doom-theme
-  `(hl-todo :foreground ,(doom-color 'bg)))
-
-(after! hl-todo
-  (setq hl-todo-color-background t
-        hl-todo-keyword-faces
-        `(("TODO"  . ,(doom-color 'orange))
-          ("HACK"  . ,(doom-color 'orange))
-          ("TEMP"  . ,(doom-color 'orange))
-          ("DONE"  . ,(doom-color 'green))
-          ("NOTE"  . ,(doom-color 'green))
-          ("DONT"  . ,(doom-color 'red))
-          ("DEBUG"  . ,(doom-color 'red))
-          ("FAIL"  . ,(doom-color 'red))
-          ("FIXME" . ,(doom-color 'red))
-          ("XXX"   . ,(doom-color 'blue))
-          ("XXXX"  . ,(doom-color 'blue)))))
+(use-package! hl-todo
+  :hook (prog-mode . hl-todo-mode)
+  :init
+  ;; code here will run immediately
+  :config
+  ;; code here will run after the package is loaded
+  (setq hl-todo-highlight-punctuation ":"))
 
 ;; ============================================================================
 ;; Terminal-specific Settings
@@ -78,3 +56,34 @@
   (custom-set-faces!
     `(mode-line-inactive :background ,(doom-darken (doom-color 'bg-alt) 0.05) :foreground ,(doom-color 'fg)))
   (setq evil-insert-state-cursor 'bar))
+
+
+;; ============================================================================
+;; Doom Modeline
+;; ============================================================================
+;; A minor-mode menu for mode-line
+(use-package! minions)
+(use-package! hide-mode-line
+  :hook (((eat-mode
+          eshell-mode shell-mode
+          term-mode vterm-mode
+          embark-collect-mode lsp-ui-imenu-mode
+          pdf-annot-list-mode) . #'turn-on-hide-mode-line-mode)))
+(setq 
+  doom-modeline-icon t
+  doom-modeline-window-width-limit (- fill-column 10)
+  doom-modeline-vcs-max-length 80
+  doom-modeline-major-mode-icon t
+  doom-modeline-enable-word-count t
+  doom-modeline-buffer-file-name-style 'truncate-with-project
+  doom-modeline-minor-modes nil)
+
+
+; (doom-modeline-def-modeline 'default
+;   '(bar window-number modals matches buffer-info remote-host buffer-position word-count parrot selection-info)
+;   '(objed-state grip debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker))
+;
+; ;; Set default mode-line
+; (add-hook 'doom-modeline-mode-hook
+;           (lambda ()
+;             (doom-modeline-set-modeline 'my-simple-line 'default)))

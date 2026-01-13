@@ -1,36 +1,24 @@
 ;;; +lsp.el -*- lexical-binding: t; -*-
-;;
-; ;; Use format-all by default
-; (setq +format-with-lsp nil)
 
 (setq +lsp-prompt-to-install-server 'quiet)
 
-;; Java
-;; current VSCode defaults
+;; Java LSP Configuration
 (setq lsp-java-vmargs '(
                         "-Declipse.application=org.eclipse.jdt.ls.core.id1"
                         "-Dosgi.bundles.defaultStartLevel=4"
                         "-Declipse.product=org.eclipse.jdt.ls.core.product"
                         "-Dlombok.disableConfig=true"
-                        "-XX:+UseParallelGC" 
-                        "-XX:GCTimeRatio=4" 
-                        "-XX:+ParallelRefProcEnabled"
+                        "-XX:+UseG1GC"
                         "-XX:+UseStringDeduplication"
                         "-XX:MaxGCPauseMillis=200"
-                        "-XX:MetaspaceSize=1G"
-                        "-XX:MaxMetaspaceSize=2G"
-                        "-XX:+UnlockExperimentalVMOptions"
-                        "-XX:G1NewSizePercent=20"
-                        "-XX:AdaptiveSizePolicyWeight=90" 
-                        "-Dsun.zip.disableMemoryMapping=true" 
+                        "-XX:MetaspaceSize=512M"
+                        "-XX:MaxMetaspaceSize=1G"
                         "-javaagent:/home/keith/.local/share/nvim/mason/share/jdtls/lombok.jar"
                         "--add-modules=ALL-SYSTEM"
-                        "--add-opens"
-                        "java.base/java.util=ALL-UNNAMED"
-                        "--add-opens"
-                        "java.base/java.lang=ALL-UNNAMED"
-                        "-Xmx4G" 
-                        "-Xms100m"))
+                        "--add-opens" "java.base/java.util=ALL-UNNAMED"
+                        "--add-opens" "java.base/java.lang=ALL-UNNAMED"
+                        "-Xmx4G"
+                        "-Xms256m"))
 (after! lsp-java
   ;; eclipse.jdt.ls needs java 17+
   ;; Not sure why brew openjdk cannot be recognized by lsp-java, use linux version instead.
@@ -52,20 +40,14 @@
 
 (after! flycheck
   (add-hook! prog-mode #'flycheck-mode)
-
-
-  (setq flycheck-auto-display-errors-after-checking nil)
+  
+  (setq flycheck-auto-display-errors-after-checking nil
+        flycheck-check-syntax-automatically '(save mode-enabled))
+  
+  ;; Disable popup tips for better performance
   (when (fboundp 'flycheck-popup-tip-mode) (flycheck-popup-tip-mode -1))
   (when (fboundp 'flycheck-pos-tip-mode)   (flycheck-pos-tip-mode -1))
-  (when (fboundp 'flycheck-inline-mode)    (flycheck-inline-mode -1))
-
-  ;; A. 只关“自动检查”，完全手动触发（最省性能）
-  ;;   - 你要手动跑：M-x flycheck-buffer
-  ; (setq flycheck-check-syntax-automatically nil)
-
-  ;; B. 如果你仍想“保存时检查”，就用这一行替换上面那行：
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  )
+  (when (fboundp 'flycheck-inline-mode)    (flycheck-inline-mode -1)))
 
 (after! lsp-mode
   (add-hook! 'lsp-help-mode-hook (visual-line-mode 1))

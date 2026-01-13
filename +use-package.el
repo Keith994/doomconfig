@@ -51,15 +51,7 @@
   (setq dirvish-hide-details '(dired dirvish dirvish-side)
         dirvish-hide-cursor '(dired dirvish dirvish-side))
   
-  (defun dirvish-copy-file-relative-path (&optional multi-line)
-    "Copy filepath of marked files.
-If MULTI-LINE, make every path occupy a new line."
-    (interactive "P")
-    (let* ((files (mapcar (lambda (file)
-                            (file-relative-name (file-local-name file)))
-                          (dired-get-marked-files)))
-           (names (mapconcat #'concat files (if multi-line "\n" " "))))
-      (dirvish--kill-and-echo (if multi-line (concat "\n" names) names)))))
+)
 
 ;; IBuffer Enhancement
 (after! ibuffer

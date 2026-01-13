@@ -24,6 +24,8 @@
 ;; ============================================================================
 ;; UI & Appearance
 ;; ============================================================================
+(package! hide-mode-line)
+(package! minions)
 (package! catppuccin-theme)
 (package! all-the-icons-ibuffer)
 (package! keycast)
