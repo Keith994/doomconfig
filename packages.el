@@ -61,6 +61,7 @@
       (package! breadcrumb :recipe (:host github :repo "joaotavora/breadcrumb"))
       (package! eglot-java))
   (package! lsp-docker))
+;(package! spring-boot-mode)
 
 ;; ============================================================================
 ;; AI & Coding Assistance
@@ -74,6 +75,7 @@
 ;; ============================================================================
 (package! adoc-mode)
 (package! tldr)
+(package! djvu)
 (package! blog-admin :recipe (:host github :repo "codefalling/blog-admin"))
 (package! pomm)
 (package! org-appear)
@@ -82,7 +84,7 @@
 ;; System Integration
 ;; ============================================================================
 (package! atomic-chrome)
-(package! rime :recipe (:host github :repo "DogLooksGood/emacs-rime" :files ("*.el" "Makefile" "lib.c")))
+;; (package! rime :recipe (:host github :repo "DogLooksGood/emacs-rime" :files ("*.el" "Makefile" "lib.c")))
 (package! xclip)
 
 ;; ============================================================================

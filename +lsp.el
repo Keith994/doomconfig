@@ -2,6 +2,14 @@
 
 (setq +lsp-prompt-to-install-server 'quiet)
 
+;; 获取lombok.jar的路径
+(defun get-lombok-jar-path ())
+    "Return the path to the lombok.jar file installed by Mason."
+    (let ((mason-lombok-path (expand-file-name "~/.local/share/nvim/mason/share/jdtls/lombok.jar")))
+        (if (file-exists-p mason-lombok-path)
+            mason-lombok-path
+        (error "Lombok jar not found in Mason installation")))
+
 ;; Java LSP Configuration
 (setq lsp-java-vmargs '(
                         "-Declipse.application=org.eclipse.jdt.ls.core.id1"
@@ -13,7 +21,7 @@
                         "-XX:MaxGCPauseMillis=200"
                         "-XX:MetaspaceSize=512M"
                         "-XX:MaxMetaspaceSize=1G"
-                        "-javaagent:/home/keith/.local/share/nvim/mason/share/jdtls/lombok.jar"
+                        (concat "-javaagent:" (get-lombok-jar-path))
                         "--add-modules=ALL-SYSTEM"
                         "--add-opens" "java.base/java.util=ALL-UNNAMED"
                         "--add-opens" "java.base/java.lang=ALL-UNNAMED"
@@ -79,8 +87,9 @@
                  ))
     (push dir lsp-file-watch-ignored-directories)))
 
+
 (after! lsp-ui
-  (setq lsp-ui-doc-enable nil
+  (setq lsp-ui-doc-enable t
         lsp-lens-enable nil
         lsp-ui-sideline-enable nil
         lsp-ui-doc-include-signature t
@@ -117,11 +126,18 @@
       orig-result)))
 (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 
+;; ============================================================================
+;; AI & Coding Assistance
 ;; accept completion from copilot and fallback to company
+;; ===========================================================================
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
   :bind (:map copilot-completion-map
-              ("M-n" . 'copilot-accept-completion)
-              ; ("C-TAB" . 'copilot-accept-completion-by-word)
-              ; ("C-<tab>" . 'copilot-accept-completion-by-word)
-              ))
+              ("M-n" . 'copilot-previous-completion)
+              ("M-p" . 'copilot-next-completion)
+              ("M-k" . 'copilot-accept-completion)
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion))
+  :config
+  (add-to-list 'copilot-indentation-alist '(prog-mode 2))
+  (add-to-list 'copilot-indentation-alist '(org-mode 2)))

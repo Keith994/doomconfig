@@ -173,25 +173,15 @@
                                           (test-regexp (concat "^" test-name "$")))
                                      `["-test.run" ,test-regexp])))
                              []))))
-    
-    ;; Java Debug Support
-    (add-to-list 'dape-configs
-                 `(:modes (java-ts-mode java-mode)
-                   :ensure dape-ensure-command
-                   :fn nil
-                   :command ,(expand-file-name "/usr/lib/jvm/java-21-openjdk/bin/java")
-                   :command-args ("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-                                  "-jar"
-                                  ,(expand-file-name "~/.local/share/nvim/mason/share/java-debug-adapter/com.microsoft.java.debug.plugin.jar"))
-                   :command-insert-stderr t
-                   :command-cwd (lambda () (dape-cwd))
-                   :port 5005
-                   :type "java"
-                   :request "attach"
-                   :name "Java Attach"
-                   :hostName "localhost"
-                   :port 5005
-                   :wait-for-port t))))
+    ))
+
+;; (use-package! spring-boot-mode
+;;   :hook (java-ts-mode . spring-boot-mode))
+(after! projectile
+        ;; 只用 .git 作为项目根判定依据
+        (setq projectile-project-root-files '(".git")
+        projectile-project-root-files-bottom-up '(".git")
+        projectile-project-root-files-top-down-recurring '(".git")))
 
 ;; ============================================================================
 ;; Language Support
@@ -215,6 +205,11 @@
 
 ;; Keycast
 (use-package! keycast :ensure t :defer t)
+
+;; (use-package! rime
+;;               :custom
+;;               (rime-user-data-dir "~/.local/share/fcitx5/rime/")
+;;               (rime-show-candidate 'minibuffer))
 
 ;; Compilation Mode
 (add-hook! compilation-mode #'visual-line-mode)

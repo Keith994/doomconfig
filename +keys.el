@@ -23,6 +23,8 @@
  :n ";" #'execute-extended-command
  :n "H" #'evil-beginning-of-line
  :n "L" #'evil-end-of-line
+ :n "J" #'centaur-tabs-backward
+ :n "K" #'centaur-tabs-forward
  "M-`" #'other-frame
 
  ;; Lookup & Documentation
@@ -144,11 +146,12 @@
   (:map magit-blame-mode-map
    :n "o" #'magit-blame--git-link-commit))
 
+ )
  ;; Corfu (Completion)
- (:after corfu-mode
-  (:map corfu-mode-map
-   :ni "C-n" nil
-   :ni "C-p" nil)))
+ ;; (:after corfu-mode
+ ;;  (:map corfu-mode-map
+ ;;   :ni "C-n" nil
+ ;;   :ni "C-p" nil)))
 
 ;; ============================================================================
 ;; Aliases
