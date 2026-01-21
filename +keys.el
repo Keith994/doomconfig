@@ -13,7 +13,13 @@
       :desc "Search project" "s g" #'+default/search-project
       
       ;; Version Control
-      :desc "Revert git buffer" "g h r" #'+vc-gutter/revert-hunk)
+      :desc "Revert git buffer" "g h r" #'+vc-gutter/revert-hunk
+      :desc "Dired" "o d" #'dirvish)
+(map! :leader
+      :n "1" #'winum-select-window-1
+      :n "2" #'winum-select-window-2
+      :n "3" #'winum-select-window-3
+      :n "4" #'winum-select-window-4)
 
 ;; ============================================================================
 ;; Global Key Bindings
@@ -23,8 +29,8 @@
  :n ";" #'execute-extended-command
  :n "H" #'evil-beginning-of-line
  :n "L" #'evil-end-of-line
- :n "J" #'centaur-tabs-backward
  :n "K" #'centaur-tabs-forward
+ :n "J" #'centaur-tabs-backward
  "M-`" #'other-frame
 
  ;; Lookup & Documentation
@@ -38,7 +44,7 @@
  ;; Convenience
  :nv ",c" #'+my/smart-close-window-enhanced
  :nv ",w" #'save-buffer
- :nv ",f" #'+my/lsp-formatter
+ :nv ",f" #'+my/formatter
  :nv ",p" #'display-which-path
 
  ;; Version Control Gutter
@@ -64,13 +70,14 @@
 
  ;; Dirvish (File Manager)
  (:after dirvish
-  (:map dirvish-mode-map
-   :n "f" #'find-file
-   :n "F" #'dirvish-file-info-menu
-   :n "TAB" #'dired-mark
-   :n "m" #'dirvish-subtree-toggle
-   :n "yr" #'dirvish-copy-file-relative-path
-   :n "yy" #'dired-copy-filename-as-kill))
+         (:map dirvish-mode-map
+          :n "f" #'find-file
+          :n "F" #'dirvish-file-info-menu
+          :n "TAB" #'dired-mark
+          :n "m" #'dirvish-subtree-toggle
+          :n "yf" #'dirvish-copy-file-name
+          :n "yr" #'dirvish-copy-file-relative-path
+          :n "yy" #'dired-copy-filename-as-kill))
 
  ;; LSP UI
  (:after lsp-ui
@@ -87,41 +94,40 @@
 
  ;; Go Mode
  (:after go-ts-mode
-  (:map go-ts-mode-map
-   :localleader
-   (:prefix "t"
-    "y" #'+go/copy-go-test-dlv-cmd
-    "Y" #'+go/copy-go-test-run-cmd
-    (:prefix ("B" . "bench")
-     "s" #'+go/bench-single
-     "a" #'+go/bench-all))))
-
+         (:map go-ts-mode-map
+          :localleader
+          (:prefix "t"
+                   "y" #'+go/copy-go-test-dlv-cmd
+                   "Y" #'+go/copy-go-test-run-cmd
+                   (:prefix ("B" . "bench")
+                            "s" #'+go/bench-single
+                            "a" #'+go/bench-all))))
  ;; Window Management
  (:after evil-vars
-  (:map evil-window-map
-   :leader
-   (:prefix "w"
-    :desc "evil-window-decrease-height" "-" (cmd! (evil-window-decrease-height 10))
-    :desc "evil-window-increase-height" "+" (cmd! (evil-window-increase-height 10))
-    :desc "evil-window-decrease-width" "<" (cmd! (evil-window-decrease-width 20))
-    :desc "evil-window-increase-width" ">" (cmd! (evil-window-increase-width 20)))))
+         (:map evil-window-map
+          :leader
+          (:prefix "w"
+           :desc "evil-window-decrease-height" "-" (cmd! (evil-window-decrease-height 10))
+           :desc "evil-window-increase-height" "+" (cmd! (evil-window-increase-height 10))
+           :desc "evil-window-decrease-width" "<" (cmd! (evil-window-decrease-width 20))
+           :desc "evil-window-increase-width" ">" (cmd! (evil-window-increase-width 20)))))
 
  ;; Vertico (Completion)
  (:when (modulep! :completion vertico)
-  (:after vertico
-   :map vertico-map
-   "C-j" nil
-   "C-k" nil
-   "C-." #'embark-act
-   "C-j" #'+vertico/embark-preview
-   "C-n" #'vertico-next
-   "C-M-n" #'+vertico/next-candidate-preview
-   "C-S-n" #'vertico-next-group
-   "C-p" #'vertico-previous
-   "A-v" #'vertico-scroll-down
-   "C-v" #'vertico-scroll-up
-   "C-M-p" #'+vertico/previous-candidate-preview
-   "C-S-p" #'vertico-previous-group))
+   (:after vertico
+    :map vertico-map
+    "C-j" nil
+    "C-k" nil
+    "C-." #'embark-act
+    "C-j" #'+vertico/embark-preview
+    "C-n" #'vertico-next
+    "C-M-n" #'+vertico/next-candidate-preview
+    "C-S-n" #'vertico-next-group
+    "C-p" #'vertico-previous
+    "A-v" #'vertico-scroll-down
+    "C-v" #'vertico-scroll-up
+    "C-M-p" #'+vertico/previous-candidate-preview
+    "C-S-p" #'vertico-previous-group))
 
  ;; Minibuffer
  (:after minibuffer
@@ -133,25 +139,20 @@
 
  ;; Magit
  (:after magit-mode
-  (:map magit-mode-map
-   "M-p" nil "M-n" nil "M-w" nil
-   :nv "$" #'magit-process-buffer
-   "C-c r" #'code-review-forge-pr-at-point))
+         (:map magit-mode-map
+          "M-p" nil "M-n" nil "M-w" nil
+          :nv "$" #'magit-process-buffer
+          "C-c r" #'code-review-forge-pr-at-point))
 
  (:after magit-diff
-  (:map magit-diff-mode-map
-   "C-o" #'magit-diff-visit-file-other-window))
+         (:map magit-diff-mode-map
+               "C-o" #'magit-diff-visit-file-other-window))
 
  (:after magit-blame
-  (:map magit-blame-mode-map
-   :n "o" #'magit-blame--git-link-commit))
+         (:map magit-blame-mode-map
+          :n "o" #'magit-blame--git-link-commit))
 
  )
- ;; Corfu (Completion)
- ;; (:after corfu-mode
- ;;  (:map corfu-mode-map
- ;;   :ni "C-n" nil
- ;;   :ni "C-p" nil)))
 
 ;; ============================================================================
 ;; Aliases

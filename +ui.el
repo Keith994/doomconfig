@@ -11,30 +11,30 @@
 ;; ============================================================================
 ;; Window & Buffer Management
 ;; ============================================================================
-(set-popup-rules! '(("^\\*helpful" :size 0.35)
-                    ("^\\*Ibuffer\\*$" :size 0.35)
-                    ("^\\*info.*" :size 80 :side right)
-                    ("^\\*Man.*" :size 80 :side right)
-                    ("^\\*keycast.*" :size 50 :side right)
-                    ("^\\*Customize" :actions display-buffer)
-                    ("^\\*edit-indirect" :size 0.6)
-                    ("^\\*YASnippet Tables\\*$" :size 0.35)
-                    ("^\\*grep\\*$" :size 0.35)
-                    ("^\\*pytest\\*" :size 0.35)
-                    ("^\\*Anaconda\\*$" :size 0.35)
-                    ("^\\*aider.*$" :ignore t)
-                    ("\\*Async Shell Command\\*$" :side bottom :size 0.30 :select t)
-                    ("\\*.*server log\\*$" :side top :size 0.20 :select nil)
-                    ((lambda (buf _) (with-current-buffer buf (eq major-mode 'forge-topic-mode))) :size 0.35)))
+;; (set-popup-rules! '(("^\\*helpful" :size 0.35)
+;;                     ("^\\*Ibuffer\\*$" :size 0.35)
+;;                     ("^\\*info.*" :size 80 :side right)
+;;                     ("^\\*Man.*" :size 80 :side right)
+;;                     ("^\\*keycast.*" :size 50 :side right)
+;;                     ("^\\*Customize" :actions display-buffer)
+;;                     ("^\\*edit-indirect" :size 0.6)
+;;                     ("^\\*YASnippet Tables\\*$" :size 0.35)
+;;                     ("^\\*grep\\*$" :size 0.35)
+;;                     ("^\\*pytest\\*" :size 0.35)
+;;                     ("^\\*Anaconda\\*$" :size 0.35)
+;;                     ("^\\*aider.*$" :ignore t)
+;;                     ("\\*Async Shell Command\\*$" :side bottom :size 0.30 :select t)
+;;                     ("\\*.*server log\\*$" :side top :size 0.20 :select nil)
+;;                     ((lambda (buf _) (with-current-buffer buf (eq major-mode 'forge-topic-mode))) :size 0.35)))
 
 ;; Aider specific window placement
 (after! aider
   (add-to-list 'display-buffer-alist
-              '((major-mode . #'aider-comint-mode)
-                (display-buffer-in-side-window)
-                (side . right)
-                (slot . 0)
-                (window-width . 0.4))))
+               '((major-mode . #'aider-comint-mode)
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (slot . 0)
+                 (window-width . 0.4))))
 
 ;; ============================================================================
 ;; Syntax Highlighting & Colors
@@ -65,25 +65,15 @@
 (use-package! minions)
 (use-package! hide-mode-line
   :hook (((eat-mode
-          eshell-mode shell-mode
-          term-mode vterm-mode
-          embark-collect-mode lsp-ui-imenu-mode
-          pdf-annot-list-mode) . #'turn-on-hide-mode-line-mode)))
-(setq 
-  doom-modeline-icon t
-  doom-modeline-window-width-limit (- fill-column 10)
-  doom-modeline-vcs-max-length 80
-  doom-modeline-major-mode-icon t
-  doom-modeline-enable-word-count t
-  doom-modeline-buffer-file-name-style 'truncate-with-project
-  doom-modeline-minor-modes nil)
-
-
-; (doom-modeline-def-modeline 'default
-;   '(bar window-number modals matches buffer-info remote-host buffer-position word-count parrot selection-info)
-;   '(objed-state grip debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs checker))
-;
-; ;; Set default mode-line
-; (add-hook 'doom-modeline-mode-hook
-;           (lambda ()
-;             (doom-modeline-set-modeline 'my-simple-line 'default)))
+           eshell-mode shell-mode
+           term-mode vterm-mode
+           embark-collect-mode lsp-ui-imenu-mode
+           pdf-annot-list-mode) . #'turn-on-hide-mode-line-mode)))
+(setq
+ doom-modeline-icon t
+ doom-modeline-window-width-limit (- fill-column 10)
+ doom-modeline-vcs-max-length 80
+ doom-modeline-major-mode-icon t
+ doom-modeline-enable-word-count t
+ doom-modeline-buffer-file-name-style 'file-name-with-project
+ doom-modeline-minor-modes nil)

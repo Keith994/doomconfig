@@ -2,17 +2,7 @@
 
 (setq +lsp-prompt-to-install-server 'quiet)
 
-;; 获取lombok.jar的路径
-(defun get-lombok-jar-path ())
-    "Return the path to the lombok.jar file installed by Mason."
-    (let ((mason-lombok-path (expand-file-name "~/.local/share/nvim/mason/share/jdtls/lombok.jar")))
-        (if (file-exists-p mason-lombok-path)
-            mason-lombok-path
-        (error "Lombok jar not found in Mason installation")))
-
-;; Java LSP Configuration
-(setq lsp-java-vmargs '(
-                        "-Declipse.application=org.eclipse.jdt.ls.core.id1"
+(setq lsp-java-vmargs '("-Declipse.application=org.eclipse.jdt.ls.core.id1"
                         "-Dosgi.bundles.defaultStartLevel=4"
                         "-Declipse.product=org.eclipse.jdt.ls.core.product"
                         "-Dlombok.disableConfig=true"
@@ -21,27 +11,25 @@
                         "-XX:MaxGCPauseMillis=200"
                         "-XX:MetaspaceSize=512M"
                         "-XX:MaxMetaspaceSize=1G"
-                        (concat "-javaagent:" (get-lombok-jar-path))
+                        "-javaagent:/home/keith/.local/share/nvim/mason/share/jdtls/lombok.jar"
                         "--add-modules=ALL-SYSTEM"
                         "--add-opens" "java.base/java.util=ALL-UNNAMED"
                         "--add-opens" "java.base/java.lang=ALL-UNNAMED"
                         "-Xmx4G"
                         "-Xms256m"))
-(after! lsp-java
-  ;; eclipse.jdt.ls needs java 17+
-  ;; Not sure why brew openjdk cannot be recognized by lsp-java, use linux version instead.
-  ;; Install with `sudo yum install java-17-amazon-corretto-devel`
-  (dolist (java_path `(
-                       "/usr/lib/jvm/java-21-openjdk"
-                       ))
-    (if (file-directory-p java_path)
-        (setq lsp-java-configuration-runtimes `[(:name "JavaSE-21"
-                                                 :path ,java_path
-                                                 :default t)]
-              lsp-java-java-path (concat java_path "/bin/java")))))
+;; eclipse.jdt.ls needs java 17+
+;; Not sure why brew openjdk cannot be recognized by lsp-java, use linux version instead.
+;; Install with `sudo yum install java-17-amazon-corretto-devel`
+(setq lsp-java-configuration-runtimes `[(:name "JavaSE-21"
+                                         :path "/usr/lib/jvm/java-21-openjdk"
+                                         :default t)])
+(setq lsp-java-java-path "/usr/lib/jvm/java-21-openjdk/bin/java")
 
 (add-hook! prog-mode
   (flymake-mode -1))
+
+(add-hook! java-ts-mode
+  (lsp))
 
 ;; 全局不使用 flymake
 (setq flymake-no-changes-timeout nil) ;; 可选：避免 flymake 计时器
@@ -59,7 +47,7 @@
 
 (after! lsp-mode
   (add-hook! 'lsp-help-mode-hook (visual-line-mode 1))
-  (setq lsp-log-io nil
+  (setq lsp-log-io t
         lsp-file-watch-threshold 4000
         lsp-diagnostics-provider :none
         lsp-headerline-breadcrumb-enable t

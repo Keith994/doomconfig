@@ -9,8 +9,9 @@
 ;; ============================================================================
 ;; Core Settings
 ;; ============================================================================
-(setq org-directory "~/org/"
+(setq org-directory "~/orgs/"
       doom-scratch-buffer-major-mode 'emacs-lisp-mode
+      tab-width 2
       confirm-kill-emacs nil
       display-line-numbers t
       display-line-numbers-type 'relative
@@ -49,8 +50,8 @@
 ;; ============================================================================
 (advice-add 'risky-local-variable-p :override #'ignore)
 (custom-set-variables
-  '(warning-suppress-log-types '((lsp-mode) (iedit)))
-  '(warning-suppress-types '((iedit))))
+ '(warning-suppress-log-types '((lsp-mode) (iedit)))
+ '(warning-suppress-types '((iedit))))
 
 ;; ============================================================================
 ;; Clipboard (Wayland Support)

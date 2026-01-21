@@ -28,6 +28,10 @@
         evil-escape-delay 0.2)
   (evil-escape-mode 1))
 
+(after! consult
+  (setq project--list nil))
+
+
 ;; Better Jumper
 (add-hook! 'better-jumper-post-jump-hook #'recenter)
 
@@ -135,6 +139,7 @@
 
 ;; Dape Debugger Configuration
 (when (modulep! :tools debugger)
+  (setq dape-breakpoint-margin-string "")
   (defun +my/dape-breakpoint-toggle ()
     (interactive)
     (require 'dape)
@@ -175,14 +180,6 @@
                              []))))
     ))
 
-;; (use-package! spring-boot-mode
-;;   :hook (java-ts-mode . spring-boot-mode))
-(after! projectile
-        ;; 只用 .git 作为项目根判定依据
-        (setq projectile-project-root-files '(".git")
-        projectile-project-root-files-bottom-up '(".git")
-        projectile-project-root-files-top-down-recurring '(".git")))
-
 ;; ============================================================================
 ;; Language Support
 ;; ============================================================================
@@ -213,3 +210,4 @@
 
 ;; Compilation Mode
 (add-hook! compilation-mode #'visual-line-mode)
+

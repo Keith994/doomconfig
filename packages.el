@@ -38,6 +38,7 @@
 (package! evil-string-inflection)
 (package! imenu-list)
 (package! consult-todo)
+; (package! multiple-cursors)
 
 ;; ============================================================================
 ;; File & Project Management

@@ -269,16 +269,16 @@ If MULTI-LINE, make every path occupy a new line."
     (dirvish--kill-and-echo (if multi-line (concat "\n" names) names))))
 
 ;;;###autoload
-(defun +my/lsp-formatter (beg end)
+(defun +my/formatter (beg end)
   "Format region or buffer using lsp-mode."
   (interactive "r")
   (condition-case err
-    (progn
-      (if (use-region-p)
-          (lsp-format-region beg end)
-        (lsp-format-buffer))
-      (font-lock-update)
-      (message "Formatted with LSP"))
+      (progn
+        (if (use-region-p)
+            (+format/region beg end)
+          (+format/buffer))
+        (font-lock-update)
+        (message "Formatted with LSP"))
     (error (message "Formatting failed: %s" err))))
 
 (defun +my/smart-close-window-enhanced ()
