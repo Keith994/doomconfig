@@ -1,25 +1,23 @@
 ;;; +keys.el -*- lexical-binding: t; -*-
 
 ;; ============================================================================
-;; Leader Key Bindings
+;; Windows Navigation Enhancements
 ;; ============================================================================
-(map! :leader
-      ;; Debug
-      (:prefix ("d" . "debug")
-       :desc "dape breakpoint toggle" "b" #'+my/dape-breakpoint-toggle
-       :desc "dape breakpoint remove all" "B" #'+my/dape-breakpoint-remove-all)
-      
-      ;; Search
-      :desc "Search project" "s g" #'+default/search-project
-      
-      ;; Version Control
-      :desc "Revert git buffer" "g h r" #'+vc-gutter/revert-hunk
-      :desc "Dired" "o d" #'dirvish)
 (map! :leader
       :n "1" #'winum-select-window-1
       :n "2" #'winum-select-window-2
       :n "3" #'winum-select-window-3
       :n "4" #'winum-select-window-4)
+
+;; ============================================================================
+;; Leader Key Bindings
+;; ============================================================================
+(map! :leader
+      ;; Search
+      :desc "Search project" "s g" #'+default/search-project
+      ;; Version Control
+      :desc "Revert git buffer" "g h r" #'+vc-gutter/revert-hunk
+      :desc "Dired" "o d" #'dirvish)
 
 ;; ============================================================================
 ;; Global Key Bindings
@@ -39,7 +37,7 @@
  :nv "gr" #'+lookup/references
  :nv "gi" #'+lookup/implementations
  :nv "gD" #'xref-find-definitions-other-window
- :nv "gl" #'flycheck-display-error-at-point
+ :nv "gl" #'flymake-show-diagnostic
 
  ;; Convenience
  :nv ",c" #'+my/smart-close-window-enhanced
@@ -57,18 +55,9 @@
  :ni "C-p" #'previous-line)
 
 ;; ============================================================================
-;; Mode-specific Key Bindings
+;; Dirvish (File Manager) Key Bindings
 ;; ============================================================================
 (map!
- ;; Programming Mode
- (:map prog-mode-map
-  :i "TAB" #'doom/dumb-indent
-  :i "<backtab>" #'doom/dumb-dedent
-  :n "ga" #'lsp-execute-code-action
-  :n "]e" #'flycheck-next-error
-  :n "[e" #'flycheck-previous-error)
-
- ;; Dirvish (File Manager)
  (:after dirvish
          (:map dirvish-mode-map
           :n "f" #'find-file
@@ -77,31 +66,21 @@
           :n "m" #'dirvish-subtree-toggle
           :n "yf" #'dirvish-copy-file-name
           :n "yr" #'dirvish-copy-file-relative-path
-          :n "yy" #'dired-copy-filename-as-kill))
+          :n "yy" #'dired-copy-filename-as-kill)))
 
- ;; LSP UI
- (:after lsp-ui
-  :map lsp-ui-mode-map
-  "C-j" #'lsp-ui-doc-mode)
+;; ============================================================================
+;; Mode-specific Key Bindings
+;; ============================================================================
+(map!
+ ;; Programming Mode
+ (:map prog-mode-map
+  :i "TAB" #'doom/dumb-indent
+  :i "<backtab>" #'doom/dumb-dedent
+  :n "ga" #'lsp-execute-code-action
+  :n "]e" #'flymake-goto-next-error
+  :n "[e" #'flymake-goto-prev-error)
 
- ;; LSP Peek
- (:after lsp-ui-peek
-  :map lsp-ui-peek-mode-map
-  "h" #'lsp-ui-peek--select-prev-file
-  "j" #'lsp-ui-peek--select-next
-  "k" #'lsp-ui-peek--select-prev
-  "l" #'lsp-ui-peek--select-next-file)
 
- ;; Go Mode
- (:after go-ts-mode
-         (:map go-ts-mode-map
-          :localleader
-          (:prefix "t"
-                   "y" #'+go/copy-go-test-dlv-cmd
-                   "Y" #'+go/copy-go-test-run-cmd
-                   (:prefix ("B" . "bench")
-                            "s" #'+go/bench-single
-                            "a" #'+go/bench-all))))
  ;; Window Management
  (:after evil-vars
          (:map evil-window-map

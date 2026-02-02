@@ -25,25 +25,8 @@
                                          :default t)])
 (setq lsp-java-java-path "/usr/lib/jvm/java-21-openjdk/bin/java")
 
-(add-hook! prog-mode
-  (flymake-mode -1))
-
 (add-hook! java-ts-mode
   (lsp))
-
-;; 全局不使用 flymake
-(setq flymake-no-changes-timeout nil) ;; 可选：避免 flymake 计时器
-
-(after! flycheck
-  (add-hook! prog-mode #'flycheck-mode)
-  
-  (setq flycheck-auto-display-errors-after-checking nil
-        flycheck-check-syntax-automatically '(save mode-enabled))
-  
-  ;; Disable popup tips for better performance
-  (when (fboundp 'flycheck-popup-tip-mode) (flycheck-popup-tip-mode -1))
-  (when (fboundp 'flycheck-pos-tip-mode)   (flycheck-pos-tip-mode -1))
-  (when (fboundp 'flycheck-inline-mode)    (flycheck-inline-mode -1)))
 
 (after! lsp-mode
   (add-hook! 'lsp-help-mode-hook (visual-line-mode 1))
@@ -83,36 +66,6 @@
         lsp-ui-doc-include-signature t
         lsp-ui-doc-max-height 15
         lsp-ui-doc-max-width 100))
-
-;; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file
-(defun lsp-booster--advice-json-parse (old-fn &rest args)
-  "Try to parse bytecode instead of json."
-  (or
-   (when (equal (following-char) ?#)
-     (let ((bytecode (read (current-buffer))))
-       (when (byte-code-function-p bytecode)
-         (funcall bytecode))))
-   (apply old-fn args)))
-(advice-add (if (progn (require 'json)
-                       (fboundp 'json-parse-buffer))
-                'json-parse-buffer
-              'json-read)
-            :around
-            #'lsp-booster--advice-json-parse)
-
-(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
-  "Prepend emacs-lsp-booster command to lsp CMD."
-  (let ((orig-result (funcall old-fn cmd test?)))
-    (if (and (not test?)                             ;; for check lsp-server-present?
-             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
-             lsp-use-plists
-             (not (functionp 'json-rpc-connection))  ;; native json-rpc
-             (executable-find "emacs-lsp-booster"))
-        (progn
-          (message "Using emacs-lsp-booster for %s!" orig-result)
-          (cons "emacs-lsp-booster" orig-result))
-      orig-result)))
-(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 
 ;; ============================================================================
 ;; AI & Coding Assistance

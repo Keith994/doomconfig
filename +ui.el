@@ -6,7 +6,7 @@
 (setq doom-font (font-spec :family "Maple Mono NF CN" :size 14)
       catppuccin-flavor 'mocha
       doom-theme 'catppuccin
-      +workspaces-on-switch-project-behavior t)
+      +workspaces-on-switch-project-behavior 'non-empty)
 
 ;; ============================================================================
 ;; Window & Buffer Management
@@ -26,7 +26,6 @@
 ;;                     ("\\*Async Shell Command\\*$" :side bottom :size 0.30 :select t)
 ;;                     ("\\*.*server log\\*$" :side top :size 0.20 :select nil)
 ;;                     ((lambda (buf _) (with-current-buffer buf (eq major-mode 'forge-topic-mode))) :size 0.35)))
-
 ;; Aider specific window placement
 (after! aider
   (add-to-list 'display-buffer-alist
@@ -61,14 +60,6 @@
 ;; ============================================================================
 ;; Doom Modeline
 ;; ============================================================================
-;; A minor-mode menu for mode-line
-(use-package! minions)
-(use-package! hide-mode-line
-  :hook (((eat-mode
-           eshell-mode shell-mode
-           term-mode vterm-mode
-           embark-collect-mode lsp-ui-imenu-mode
-           pdf-annot-list-mode) . #'turn-on-hide-mode-line-mode)))
 (setq
  doom-modeline-icon t
  doom-modeline-window-width-limit (- fill-column 10)

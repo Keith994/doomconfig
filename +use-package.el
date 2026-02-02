@@ -95,13 +95,6 @@
   (dolist (func '(+default/search-project))
     (advice-add func :around #'doom-set-jump-a)))
 
-;; Corfu Completion
-(after! corfu
-  (setq corfu-preselect t)
-  (map! :map corfu-mode-map
-        :ni "C-n" nil
-        :ni "C-p" nil))
-
 ;; ============================================================================
 ;; Terminal & Shell
 ;; ============================================================================
