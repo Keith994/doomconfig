@@ -3,7 +3,7 @@
 ;; Corfu Completion
 (after! corfu
   (setq +corfu-buffer-scanning-size-limit (* 1 1024 1024)) ; 1 MB
-  (setq corfu-preselect t)
+  (setq corfu-preselect nil)
   (map! :map corfu-mode-map
         :ni "C-n" nil
         :ni "C-p" nil))

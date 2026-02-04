@@ -1,5 +1,10 @@
 ;;; +base.el -*- lexical-binding: t; -*-
 
+(setq tab-width 4
+      mark-ring-max 128
+      global-mark-ring-max 128)
+(blink-cursor-mode 1)
+
 ;; ============================================================================
 ;; User Information
 ;; ============================================================================
@@ -17,6 +22,7 @@
       display-line-numbers-type 'relative
       delete-by-moving-to-trash t)
 
+
 ;; ============================================================================
 ;; Editor Behavior
 ;; ============================================================================
@@ -33,16 +39,16 @@
 ;; ============================================================================
 (setq inhibit-compacting-font-caches t
       read-process-output-max (* 16 1024 1024)
-      gc-cons-threshold (* 2 1024 1024 1024)  ; 2GB
+      gc-cons-threshold (* 1 1024 1024 1024)  ; 1GB
       gc-cons-percentage 0.6
-      doom-gc-cons-threshold (* 2 1024 1024 1024)
-      doom-gc-cons-upper-limit (* 4 1024 1024 1024)
+      doom-gc-cons-threshold (* 1 1024 1024 1024)
+      doom-gc-cons-upper-limit (* 3 1024 1024 1024)
       doom-gc-cons-percentage 0.5)
 
 (after! gcmh
   (setq gcmh-idle-delay 30          ; 更频繁的GC
         gcmh-auto-idle-delay-factor 2
-        gcmh-high-cons-threshold (* 2 1024 1024 1024)
+        gcmh-high-cons-threshold (* 1 1024 1024 1024)
         gcmh-verbose nil))
 
 ;; ============================================================================

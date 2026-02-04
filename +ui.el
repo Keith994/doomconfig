@@ -1,11 +1,23 @@
 ;;; +ui.el -*- lexical-binding: t; -*-
 
+(after! doom-init-ui
+  (set-language-environment "English")
+  (set-default-coding-systems 'utf-8)
+  (set-buffer-file-coding-system 'utf-8)
+  (set-clipboard-coding-system 'utf-8)
+  (set-file-name-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-next-selection-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8))
 ;; ============================================================================
 ;; Theme & Appearance
 ;; ============================================================================
-(setq doom-font (font-spec :family "Maple Mono NF CN" :size 14)
+(setq doom-font (font-spec :family "Maple Mono NF CN" :size 16 :weight 'regular)
       catppuccin-flavor 'mocha
-      doom-theme 'catppuccin
+      doom-theme 'doom-dracula
       +workspaces-on-switch-project-behavior 'non-empty)
 
 ;; ============================================================================
@@ -47,14 +59,6 @@
   :config
   ;; code here will run after the package is loaded
   (setq hl-todo-highlight-punctuation ":"))
-
-;; ============================================================================
-;; Terminal-specific Settings
-;; ============================================================================
-(unless (display-graphic-p)
-  (custom-set-faces!
-    `(mode-line-inactive :background ,(doom-darken (doom-color 'bg-alt) 0.05) :foreground ,(doom-color 'fg)))
-  (setq evil-insert-state-cursor 'bar))
 
 
 ;; ============================================================================

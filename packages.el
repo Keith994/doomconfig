@@ -26,18 +26,6 @@
 ;; ============================================================================
 (package! catppuccin-theme)
 (package! all-the-icons-ibuffer)
-(package! keycast)
-
-;; ============================================================================
-;; Editing & Navigation
-;; ============================================================================
-(package! evil-escape)
-
-;; LSP Configuration
-(if (modulep! :tools lsp +eglot)
-    (progn
-      (package! breadcrumb :recipe (:host github :repo "joaotavora/breadcrumb"))
-      (package! eglot-java)))
 
 ;; ============================================================================
 ;; AI & Coding Assistance

@@ -1,33 +1,5 @@
 ;;; +use-package.el -*- lexical-binding: t; -*-
 
-;; ============================================================================
-;; Navigation & Editing
-;; ============================================================================
-
-;; Evil Mode Configuration
-(setq evil-cross-lines t
-      evil-split-window-below t
-      evil-vsplit-window-right t
-      evil-ex-substitute-global t)
-
-(after! evil
-  (evil-define-text-object evil-inner-buffer (count &optional beg end type)
-    (list (point-min) (point-max)))
-  (define-key evil-inner-text-objects-map "g" 'evil-inner-buffer))
-
-;; Evil Snipe
-(after! evil-snipe
-  (setq evil-snipe-scope 'buffer
-        evil-snipe-repeat-scope 'buffer)
-  (push 'prodigy-mode evil-snipe-disabled-modes))
-
-;; Evil Escape
-(use-package! evil-escape
-  :config
-  (setq evil-escape-key-sequence "jk"
-        evil-escape-delay 0.2)
-  (evil-escape-mode 1))
-
 (after! consult
   (setq project--list nil))
 
@@ -55,7 +27,7 @@
   (setq dirvish-hide-details '(dired dirvish dirvish-side)
         dirvish-hide-cursor '(dired dirvish dirvish-side))
   
-)
+  )
 
 ;; IBuffer Enhancement
 (after! ibuffer
@@ -75,25 +47,16 @@
   :after ibuffer
   :init (all-the-icons-ibuffer-mode 1))
 
-;; Imenu List
-(use-package! imenu-list
-  :ensure t
-  :defer t
-  :config
-  (set-popup-rules! '(("^\\*Ilist\\*" :side right :size 40 :select t))))
-
 ;; ============================================================================
 ;; Completion & UI
 ;; ============================================================================
 
 ;; Vertico Completion
-(when (modulep! :completion vertico)
-  (setq vertico-posframe-border-width 3)
-  (setq vertico-posframe-poshandler #'posframe-poshandler-frame-bottom-center)
-  
-  ;; Fix jump issue for vertico
-  (dolist (func '(+default/search-project))
-    (advice-add func :around #'doom-set-jump-a)))
+(setq vertico-posframe-border-width 1)
+(setq vertico-posframe-poshandler #'posframe-poshandler-frame-bottom-center)
+;; Fix jump issue for vertico
+(dolist (func '(+default/search-project))
+  (advice-add func :around #'doom-set-jump-a))
 
 ;; ============================================================================
 ;; Terminal & Shell
@@ -121,9 +84,7 @@
   :config
   (setq aider-args '("--model" "deepseek/deepseek-coder"))
   (require 'aider-doom))
-
 ;; Comint Mode Settings
-(set-evil-initial-state! '(comint-mode) 'insert)
 (add-hook! 'comint-mode-hook #'visual-line-mode)
 
 ;; ============================================================================
@@ -174,33 +135,15 @@
     ))
 
 ;; ============================================================================
-;; Language Support
-;; ============================================================================
-
-;; Protobuf Mode
-(use-package! protobuf-mode :defer t)
-
-;; Which Function
-(use-package! which-func :defer t :commands which-function)
-
-;; ============================================================================
 ;; Utilities
 ;; ============================================================================
 
-;; Screenshot
-(use-package! screenshot :defer t)
-
 ;; Consult Todo
-(use-package! consult-todo :ensure t :defer t)
+(use-package! consult-todo :defer t)
 
 ;; Keycast
 (use-package! keycast :ensure t :defer t)
 
-;; (use-package! rime
-;;               :custom
-;;               (rime-user-data-dir "~/.local/share/fcitx5/rime/")
-;;               (rime-show-candidate 'minibuffer))
-
-;; Compilation Mode
+;; Enable visual-line-mode in compilation buffers
 (add-hook! compilation-mode #'visual-line-mode)
 

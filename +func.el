@@ -1,20 +1,5 @@
 ;;; +func.el -*- lexical-binding: t; -*-
 
-(defun my/realgud-eval-region-or-word-at-point ()
-  "Evaluate region or word at point in realgud."
-  (interactive)
-  (when-let* ((cmdbuf (realgud-get-cmdbuf))
-              (process (get-buffer-process cmdbuf))
-              (expr (if (evil-visual-state-p)
-                        (let ((range (evil-visual-range)))
-                          (buffer-substring-no-properties (evil-range-beginning range)
-                                                          (evil-range-end range)))
-                      (word-at-point))))
-    (with-current-buffer cmdbuf
-      (setq realgud:process-filter-save (process-filter process))
-      (set-process-filter process 'realgud:eval-process-output))
-    (realgud:cmd-eval expr)))
-
 (defun +my/realtime-elisp-doc-function ()
   (-when-let* ((w (selected-window))
                (s (intern-soft (current-word))))
