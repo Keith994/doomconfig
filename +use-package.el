@@ -1,5 +1,12 @@
 ;;; +use-package.el -*- lexical-binding: t; -*-
 
+;; Corfu Completion
+(use-package! corfu
+  :config
+  (setq +corfu-buffer-scanning-size-limit (* 1 1024 1024)) ; 1 MB
+  (setq corfu-preselect nil)
+  )
+
 (after! consult
   (setq project--list nil))
 

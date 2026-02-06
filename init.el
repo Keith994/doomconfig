@@ -1,6 +1,8 @@
 ;;; init.el -*- lexical-binding: t; -*-
 
-(doom!
+(doom! ;:lang 
+       ;chinese
+
        :completion
        (corfu +icons +abbrev +orderless)  ; complete with cap(f), cape and a flying feather!
        (vertico +icons)           ; the search engine of the future
@@ -14,14 +16,14 @@
        (popup +defaults)   ; tame sudden yet inevitable temporary windows
        smooth-scroll     ; So smooth you won't believe it's not butter
        tabs              ; a tab bar for Emacs
-       unicode           ; extended unicode support for various languages
+       ;unicode           ; extended unicode support for various languages
        (vc-gutter +pretty) ; vcs diff in the fringe
        vi-tilde-fringe   ; fringe tildes to mark beyond EOB
        (window-select +numbers)    ; visually switch windows
        workspaces        ; tab emulation, persistence & separate workspaces
 
        :editor
-       ;; (evil +everywhere); come to the dark side, we have cookies
+       (evil +everywhere); come to the dark side, we have cookies
        file-templates    ; auto-snippets for empty files
        fold              ; (nigh) universal code folding
        (format +lsp)  ; automated prettiness
@@ -44,7 +46,7 @@
        editorconfig      ; let someone else argue about tabs vs spaces
        (eval +overlay)     ; run code, run (also, repls)
        (lookup +devdoc +docsets)              ; navigate your code and its documentation
-       (lsp)                 ; M-x vscode
+       (lsp +lsp)                 ; M-x vscode
        magit                ; a git porcelain for Emacs
        pdf               ; pdf enhancements
        tree-sitter       ; syntax and parsing, sitting in a tree...
@@ -58,7 +60,7 @@
        (go +lsp +tree-sitter)         ; the hipster dialect
        json              ; At least it ain't XML
        ;;lua               ; one-based indices? one-based indices
-       markdown          ; writing docs for people to ignore
+       (markdown +grip +tree-sitter)          ; writing docs for people to ignore
        (org +roam +dragndrop +noter +pandoc +pomodoro +present +passwords)       ; organize your plain life in plain text
        graphviz          ; diagrams for confusing yourself even more
        (python +lsp +pyright +tree-sitter)                                                ; beautiful is better than ugly

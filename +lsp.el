@@ -27,37 +27,111 @@
 
 (add-hook! java-ts-mode
   (lsp))
+(add-hook! 'go-ts-mode-hook
+  (setq tab-width 2))
+
+;; 诊断函数：查看 xref 项目的详细信息
+(defun my/debug-xref-items ()
+  "Debug xref items to understand the encoding issue."
+  (interactive)
+  (message (buffer-name))
+  (when (string-match-p "\\*xref\\*" (buffer-name))
+    (let ((item (xref--item-at-point)))
+      (when item
+        (message "Summary: %S" (xref-item-summary item))
+        (message "Summary bytes: %s" 
+                 (mapcar (lambda (c) (format "%d" c)) 
+                         (string-to-list (xref-item-summary item))))
+        (let ((location (xref-item-location item)))
+          (message "Location: %S" location)
+          (message "File: %s" (xref-location-group location))
+          (message "Line: %s" (xref-location-line location)))))))
+
+
 
 (after! lsp-mode
+  (defun my/fix-encoding-preserving-properties (str)
+    "Fix encoding in STR while preserving text properties."
+    ;; 检查是否真的需要修复（包含非ASCII字符但不是有效的多字节字符串）
+    (if (string-match "[^\x00-\x7F]" str)
+        (let* ((props-list nil)
+              (fixed-str
+                (or (ignore-errors (decode-coding-string str 'utf-8))
+                    (ignore-errors (decode-coding-string str 'gbk))
+                    (ignore-errors (decode-coding-string str 'gb2312))
+                    (ignore-errors (decode-coding-string str 'chinese-iso-8bit))
+                    str)))
+          ;; 收集原始字符串的所有文本属性
+          (setq props-list (text-property-search-all str))
+          
+          ;; 恢复文本属性到修复后的字符串
+          (dolist (prop props-list)
+            (let ((start (nth 0 prop))
+                  (end (nth 1 prop))
+                  (properties (nth 2 prop)))
+              ;; 确保位置不超过新字符串的长度
+              (when (and (<= start (length fixed-str))
+                        (<= end (length fixed-str)))
+                (add-text-properties start end properties fixed-str))))
+          fixed-str)
+      str))
+
+  (defun text-property-search-all (string)
+    "Return all text property ranges in STRING.
+  Returns a list of (START END PROPERTIES)."
+    (let ((pos 0)
+          (len (length string))
+          (result nil))
+      (while (< pos len)
+        (let* ((props (text-properties-at pos string))
+              (next-change (or (next-property-change pos string) len)))
+          (when props
+            (push (list pos next-change props) result))
+          (setq pos next-change)))
+      (nreverse result)))
+
+  (defun my/fix-xref-summary-encoding-carefully (orig-fun &rest args)
+    "Fix encoding issues only when necessary."
+    (let ((xref-items (apply orig-fun args)))
+      (dolist (item xref-items)
+        (when (xref-item-p item)
+          (let ((summary (xref-item-summary item)))
+            (when summary
+              (let ((fixed (my/fix-encoding-preserving-properties summary)))
+                (when (not (string= summary fixed))
+                  (setf (xref-item-summary item) fixed)))))))
+      xref-items))
+
+  (advice-add 'lsp--locations-to-xref-items :around #'my/fix-xref-summary-encoding-carefully)
   (add-hook! 'lsp-help-mode-hook (visual-line-mode 1))
   (setq lsp-log-io t
-        lsp-file-watch-threshold 4000
-        lsp-diagnostics-provider :none
+        lsp-diagnostics-provider :t
+        lsp-file-watch-threshold 20000
         lsp-headerline-breadcrumb-enable t
+        lsp-diagnostics-provider :flymake
         lsp-headerline-breadcrumb-icons-enable nil
         lsp-headerline-breadcrumb-segments '(file symbols)
         lsp-imenu-index-symbol-kinds '(File Module Namespace Package Class Method Enum Interface
                                        Function Variable Constant Struct Event Operator TypeParameter))
-  (dolist (dir '("[/\\\\]\\.ccls-cache\\'"
-                 "[/\\\\]\\.mypy_cache\\'"
-                 "[/\\\\]\\.pytest_cache\\'"
-                 "[/\\\\]\\.cache\\'"
-                 "[/\\\\]\\.clwb\\'"
-                 "[/\\\\]\\.env\\'"
-                 "[/\\\\]__pycache__\\'"
-                 "[/\\\\]bazel-bin\\'"
-                 "[/\\\\]bazel-code\\'"
-                 "[/\\\\]bazel-genfiles\\'"
-                 "[/\\\\]bazel-out\\'"
-                 "[/\\\\]bazel-testlogs\\'"
-                 "[/\\\\]third_party\\'"
-                 "[/\\\\]third-party\\'"
-                 "[/\\\\]buildtools\\'"
-                 "[/\\\\]out\\'"
-                 "[/\\\\]build\\'"
-                 ))
-    (push dir lsp-file-watch-ignored-directories)))
-
+(dolist (dir '("[/\\\\]\\.ccls-cache\\'"
+               "[/\\\\]\\.mypy_cache\\'"
+               "[/\\\\]\\.pytest_cache\\'"
+               "[/\\\\]\\.cache\\'"
+               "[/\\\\]\\.clwb\\'"
+               "[/\\\\]\\.env\\'"
+               "[/\\\\]__pycache__\\'"
+               "[/\\\\]bazel-bin\\'"
+               "[/\\\\]bazel-code\\'"
+               "[/\\\\]bazel-genfiles\\'"
+               "[/\\\\]bazel-out\\'"
+               "[/\\\\]bazel-testlogs\\'"
+               "[/\\\\]third_party\\'"
+               "[/\\\\]third-party\\'"
+               "[/\\\\]buildtools\\'"
+               "[/\\\\]out\\'"
+               "[/\\\\]build\\'"
+               ))
+  (push dir lsp-file-watch-ignored-directories)))
 
 (after! lsp-ui
   (setq lsp-ui-doc-enable t
@@ -82,3 +156,35 @@
   :config
   (add-to-list 'copilot-indentation-alist '(prog-mode 2))
   (add-to-list 'copilot-indentation-alist '(org-mode 2)))
+
+; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file
+(defun lsp-booster--advice-json-parse (old-fn &rest args)
+  "Try to parse bytecode instead of json."
+  (or
+   (when (equal (following-char) ?#)
+     (let ((bytecode (read (current-buffer))))
+       (when (byte-code-function-p bytecode)
+         (funcall bytecode))))
+   (apply old-fn args)))
+
+(advice-add (if (progn (require 'json)
+                       (fboundp 'json-parse-buffer))
+                'json-parse-buffer
+              'json-read)
+            :around
+            #'lsp-booster--advice-json-parse)
+
+(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+  "Prepend emacs-lsp-booster command to lsp CMD."
+  (let ((orig-result (funcall old-fn cmd test?)))
+    (if (and (not test?)                             ;; for check lsp-server-present?
+             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+             lsp-use-plists
+             (not (functionp 'json-rpc-connection))  ;; native json-rpc
+             (executable-find "emacs-lsp-booster"))
+        (progn
+          (message "Using emacs-lsp-booster for %s!" orig-result)
+          (cons "emacs-lsp-booster" orig-result))
+      orig-result)))
+
+(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)

@@ -1,24 +1,13 @@
 ;;; +ui.el -*- lexical-binding: t; -*-
 
-(after! doom-init-ui
-  (set-language-environment "English")
-  (set-default-coding-systems 'utf-8)
-  (set-buffer-file-coding-system 'utf-8)
-  (set-clipboard-coding-system 'utf-8)
-  (set-file-name-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-next-selection-coding-system 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (setq locale-coding-system 'utf-8)
-  (prefer-coding-system 'utf-8))
 ;; ============================================================================
 ;; Theme & Appearance
 ;; ============================================================================
-(setq doom-font (font-spec :family "Maple Mono NF CN" :size 16 :weight 'regular)
-      catppuccin-flavor 'mocha
+(setq catppuccin-flavor 'mocha
       doom-theme 'doom-dracula
       +workspaces-on-switch-project-behavior 'non-empty)
+(setq doom-font "Maple Mono NF CN-13.5")
+;;(set-fontset-font "fontset-default" 'han (font-spec :family "WenQuanYi Micro Hei Mono"))
 
 ;; ============================================================================
 ;; Window & Buffer Management
@@ -66,6 +55,8 @@
 ;; ============================================================================
 (setq
  doom-modeline-icon t
+ doom-modeline--eglot t
+ doom-modeline-buffer-encoding t
  doom-modeline-window-width-limit (- fill-column 10)
  doom-modeline-vcs-max-length 80
  doom-modeline-major-mode-icon t

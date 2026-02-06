@@ -1,5 +1,17 @@
 ;;; +base.el -*- lexical-binding: t; -*-
 
+;; 设置 Emacs 使用 utf-8 作为默认编码
+(prefer-coding-system 'utf-8-unix)
+(set-terminal-coding-system 'utf-8-unix)
+(set-keyboard-coding-system 'utf-8-unix)
+(set-selection-coding-system 'utf-8-unix)
+(setq locale-coding-system 'utf-8-unix)
+(setq default-buffer-file-coding-system 'utf-8-unix)
+(setq buffer-file-coding-system 'utf-8-unix)
+
+;; 禁用 BOM
+(setq utf-8-with-signature-coding-system 'utf-8-unix)
+
 (setq tab-width 4
       mark-ring-max 128
       global-mark-ring-max 128)
@@ -15,7 +27,6 @@
 ;; Core Settings
 ;; ============================================================================
 (setq org-directory "~/orgs/"
-      doom-scratch-buffer-major-mode 'emacs-lisp-mode
       tab-width 2
       confirm-kill-emacs nil
       display-line-numbers t
@@ -27,9 +38,7 @@
 ;; Editor Behavior
 ;; ============================================================================
 (setq-default fill-column 120
-              delete-trailing-lines t
-              vterm-shell "/bin/fish"
-              explicit-shell-file-name "/bin/fish")
+              delete-trailing-lines t)
 
 (delete-selection-mode 1)
 (global-auto-revert-mode t)
@@ -39,16 +48,13 @@
 ;; ============================================================================
 (setq inhibit-compacting-font-caches t
       read-process-output-max (* 16 1024 1024)
-      gc-cons-threshold (* 1 1024 1024 1024)  ; 1GB
-      gc-cons-percentage 0.6
-      doom-gc-cons-threshold (* 1 1024 1024 1024)
-      doom-gc-cons-upper-limit (* 3 1024 1024 1024)
-      doom-gc-cons-percentage 0.5)
+      gc-cons-threshold (* 500 1024 1024)  ; 500MB
+      gc-cons-percentage 0.6)
 
 (after! gcmh
-  (setq gcmh-idle-delay 30          ; 更频繁的GC
-        gcmh-auto-idle-delay-factor 2
-        gcmh-high-cons-threshold (* 1 1024 1024 1024)
+  (setq gcmh-idle-delay 60          ; 更频繁的GC
+        gcmh-auto-idle-delay-factor 0.3
+        gcmh-high-cons-threshold (* 500  1024 1024)
         gcmh-verbose nil))
 
 ;; ============================================================================
