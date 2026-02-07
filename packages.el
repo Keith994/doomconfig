@@ -27,6 +27,7 @@
 (package! catppuccin-theme)
 (package! all-the-icons-ibuffer)
 (package! keycast)
+(package! multiple-cursors)
 
 ;; ============================================================================
 ;; AI & Coding Assistance

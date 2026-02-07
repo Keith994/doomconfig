@@ -148,9 +148,8 @@
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
   :bind (:map copilot-completion-map
-              ("M-n" . 'copilot-previous-completion)
+              ("M-n" . 'copilot-previous-completion) ;; 默认是 M-p 和 M-n，和 Emacs 的默认快捷键冲突了，所以改成 M-n 和 M-p
               ("M-p" . 'copilot-next-completion)
-              ("M-k" . 'copilot-accept-completion)
               ("<tab>" . 'copilot-accept-completion)
               ("TAB" . 'copilot-accept-completion))
   :config

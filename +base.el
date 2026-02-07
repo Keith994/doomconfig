@@ -1,16 +1,16 @@
 ;;; +base.el -*- lexical-binding: t; -*-
 
 ;; 设置 Emacs 使用 utf-8 作为默认编码
-(prefer-coding-system 'utf-8-unix)
-(set-terminal-coding-system 'utf-8-unix)
-(set-keyboard-coding-system 'utf-8-unix)
-(set-selection-coding-system 'utf-8-unix)
-(setq locale-coding-system 'utf-8-unix)
-(setq default-buffer-file-coding-system 'utf-8-unix)
-(setq buffer-file-coding-system 'utf-8-unix)
+(prefer-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(setq locale-coding-system 'utf-8)
+(setq default-buffer-file-coding-system 'utf-8)
+(setq buffer-file-coding-system 'utf-8)
 
 ;; 禁用 BOM
-(setq utf-8-with-signature-coding-system 'utf-8-unix)
+(setq utf-8-with-signature-coding-system 'utf-8)
 
 (setq tab-width 4
       mark-ring-max 128

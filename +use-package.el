@@ -2,10 +2,20 @@
 
 ;; Corfu Completion
 (use-package! corfu
-  :config
-  (setq +corfu-buffer-scanning-size-limit (* 1 1024 1024)) ; 1 MB
-  (setq corfu-preselect nil)
+  :custom
+  (corfu-auto-delay 0.2)
+  (corfu-auto-prefix 2)
+  (corfu-preselect 'prompt)          ;; 不预选任何候选项
+  ;; (corfu-preselect 'prompt)   ;; 预选输入提示（默认）
+  ;; (corfu-preselect 'first)    ;; 预选第一个候选项
+  ;; (corfu-preselect 'valid)    ;; 只在有精确匹配时预选
+  (corfu-quit-no-match 'separator)
+  :bind
+  (:map corfu-map
+        ("RET" . nil))
   )
+
+(use-package! multiple-cursors)
 
 (after! consult
   (setq project--list nil))
@@ -154,3 +164,52 @@
 ;; Enable visual-line-mode in compilation buffers
 (add-hook! compilation-mode #'visual-line-mode)
 
+
+(after! go-ts-mode
+  (defun +go/go-alt ()
+    "Create or go to the corresponding _test.go file for the current Go file."
+    (interactive)
+    (let* ((current-file (buffer-file-name))
+           (current-dir (file-name-directory current-file))
+           (current-name (file-name-nondirectory current-file))
+           (test-file-name (if (string-match "_test\\.go$" current-name)
+                               ;; 如果当前已经是测试文件，则跳转到源文件
+                               (replace-regexp-in-string "_test\\.go$" ".go" current-name)
+                             ;; 否则跳转到测试文件
+                             (replace-regexp-in-string "\\.go$" "_test.go" current-name)))
+           (test-file-path (expand-file-name test-file-name current-dir)))
+
+      (if (file-exists-p test-file-path)
+          ;; 文件存在，直接打开
+          (find-file test-file-path)
+        ;; 文件不存在，询问是否创建
+        (when (yes-or-no-p (format "Create test file %s? " test-file-name))
+          (find-file test-file-path)
+          ;; 自动添加基本的测试模板
+          (when (zerop (buffer-size))
+            (insert (format "package %s\n\nimport (\n\t\"testing\"\n)\n\n"
+                            (go-package-name current-dir)))
+            (save-buffer)))))))
+
+(after! java-ts-mode
+  ;;;###autoload
+  (defun +java/copy-java-class-path ()
+    "Copy the fully qualified Java class name to clipboard."
+    (interactive)
+    (unless (or (eq major-mode 'java-mode)
+                (eq major-mode 'java-ts-mode))
+      (user-error "Not in a Java buffer"))
+    (let* ((package (save-excursion
+                      (goto-char (point-min))
+                      (when (re-search-forward "^package \\([^;]+\\);" nil t)
+                        (match-string 1))))
+           (class (save-excursion
+                    (goto-char (point-min))
+                    (when (re-search-forward "^public \\(?:class\\|interface\\|enum\\) \\([A-Za-z0-9_]+\\)" nil t)
+                      (match-string 1))))
+           (fqn (if (and package class)
+                    (concat package "." class)
+                  class)))
+      (when fqn
+        (kill-new fqn)
+        (message "Copied: %s" fqn)))))

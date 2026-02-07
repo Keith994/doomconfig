@@ -1,21 +1,5 @@
 ;;; +keys.el -*- lexical-binding: t; -*-
 
-(defun delete-to-beginning-of-line ()
-  "Delete from point to the beginning of the line."
-  (interactive)
-  (delete-region (point) (line-beginning-position))
-  (delete-char 1 nil))
-
-(defun consult-find-file-or-projectile ()
-  "在projectile项目中查找文件,否则使用consult-find-file"
-  (interactive)
-  (if (projectile-project-p)
-      (projectile-find-file)
-    (consult-find)))
-
-;; (setq doom-leader-key "SPC"
-;;       doom-localleader-key ","
-;;      doom-leader-alt-key nil)
 ;; 批量禁用不需要的 C-x 前缀绑定
 (dolist (key '("+" "*" "#" "$" "'" "\\" "]" "[" "." "f" ";" "^" "`"
                "B" "C-M-+" "C-M--" "C-M-0" "C-M-=" "z" "X" "w" "n"
@@ -24,14 +8,6 @@
 ;; 批量禁用不需要的 C-c 前缀绑定
 (dolist (key '("l" "e" "p" "C-b"))
   (map! :prefix "C-c " key 'nil))
-(defun sp/wrap-with-pair ()
-  "使用sp-wrap-round等函数添加pair, 读取终端的字符决定使用哪个"
-  (interactive)
-  (let ((key (read-key "Enter a pair character: ")))
-    (cond
-     ((memq key '(?\( ?\< ?\[ ?\{ ?\" ?\'))
-      (sp-wrap-with-pair (char-to-string key)))
-     )))
 
 (map! :map  goto-map
       "<TAB>" 'nil
@@ -56,7 +32,7 @@
       :desc "ibuffer" "i" #'ibuffer
       (:prefix "s"
        :desc "consult ripgrep" "s" #'consult-buffer ;; M-SPC s s 在项目中搜索文本
-       :desc "consult grep" "g" #'consult-grep ;; M-SPC s g 使用grep搜索文本
+       :desc "consult grep" "g" #'consult-ripgrep ;; M-SPC s g 使用grep搜索文本
        :desc "consult imenu" "i" #'consult-imenu ;; M-SPC s i 跳转到符号
        :desc "consult line" "l" #'consult-line ;; M-SPC s l 搜索当前buffer
        :desc "consult multi-occur" "o" #'consult-multi-occur ;; M-SPC s o 多buffer搜索
@@ -109,7 +85,8 @@
        :desc "replace" "R" #'projectile-replace) ;; M-SPC p R 替换文本
       (:prefix "w"
        :desc "split window right" "v" #'split-window-right ;; M-SPC w s 符合vim习惯
-       :desc "split window below" "s" #'split-window-below ;; M-SPC w v 符合vim习惯
+       :desc "save session" "s" #'+workspace/save ;; M-SPC W s 保存工作区
+       :desc "recover session" "r" #'+workspace/restore-last-session ;; M-SPC W r 恢复上次工作区
        :desc "new workspace" "n" #'+workspace/new ;; M-SPC W n 新建工作区
        :desc "kill workspace" "d" #'+workspace/kill ;; M-SPC W d 删除工作区
        :desc "display workspaces" "i" #'+workspace/display ;; M-SPC W i 显示工作区列表
@@ -131,11 +108,11 @@
       "9" 'doom/window-enlargen    ;; C-x 9 增大当前窗口
       ")" 'sp-unwrap-sexp          ;; C-x ) 删除括号但保留内容
       "(" 'sp/wrap-with-pair       ;; C-x ( 添加括号对
-
       )
 
 (after! lsp-mode
   (map! :map lsp-mode-map
+        "M-a" #'lsp-execute-code-action
         "M-r" #'lsp-rename ;; M-r 重命名符号
         "M-k" #'lsp-ui-doc-glance ;; M-k 查看文档
         "M-?" #'lsp-find-references ;; M-? 查找引用
@@ -149,29 +126,11 @@
                       (dape-continue)
                     (dape)))
         "<S-f5>" #'dape-quit
-        "C-<f10>" #'dape-until  ))
+        "C-<f10>" #'dape-until))
 
 (setq which-key-idle-delay 0.2
       which-key-idle-secondary-delay 0.1)
-(which-key-add-key-based-replacements
-  "C-x RET" "coding system"
-  "C-x 4" "open in other window"
-  "C-x 5" "open in other frame"
-  "C-x 8" "insert special char"
-  "C-x 8 e" "insert emoji"
-  "C-x >" "view content left"
-  "C-x <" "view content right"
-  "C-x a" "abbrev"
-  "C-x b" "project buffer"
-  "C-x x" "font and buffer"
-  "C-x r" "registers"
-  "C-x K" "kill buffer in all window"
-  "M-SPC p" "projectile"
-  "M-SPC g" "magit"
-  "M-SPC b" "switch buffer"
-  "M-SPC d" "dirvish"
-  "M-SPC w" "workspace"
-  )
+
 
 (map! "C-_" 'nil
       "M-_" 'nil
@@ -187,9 +146,17 @@
       "C-=" #'er/expand-region ;; C-= 扩大选择区域
       "C-u" #'delete-to-beginning-of-line ;; C-u 删除到行首
       "C-'" #'avy-goto-char-2 ;; C-RET 快速跳转到单词
+      "M-/" #'consult-line ;; M-/ 搜索当前buffer
+      "M-k" #'+lookup/documentation ;; M-k 查看文档
+      "M-o" #'copilot-complete ;; M-o copilot补全
+      "C-S-l" #'duplicate-line ;; C-S-l 复制当前行
+      "C->" #'mc/mark-next-like-this
+      "C-<" #'mc/mark-previous-like-this
+      "C-c C->" #'mc/mark-all-like-this
       )
 
 (after! evil
+  (evil-mode -1)
   (map! :map evil-normal-state-map
         "C-n" #'next-line ;; C-n 向下
         "C-p" #'previous-line ;; C-p 向上
@@ -203,7 +170,7 @@
   (map! :map evil-insert-state-map
         "C-n" #'next-line ;; C-n 向下
         "C-p" #'previous-line ;; C-p 向上
-        "C-e" #'end-of-line ;; C-e 行尾
+        "C-e" #'doom/forward-to-last-non-comment-or-eol ;; C-e 行尾
         "C-d" #'delete-char ;; C-d 删除一个字符
         "C-k" #'kill-line ;; C-k 删除到行尾
         "C-_" 'nil
@@ -225,6 +192,26 @@
   (map! :map  corfu-mode-map
         :i "C-SPC" 'set-mark-command ;; C-SPC 设置标记开始选择
         )
+  )
+
+(which-key-add-key-based-replacements
+  "C-x RET" "coding system"
+  "C-x 4" "open in other window"
+  "C-x 5" "open in other frame"
+  "C-x 8" "insert special char"
+  "C-x 8 e" "insert emoji"
+  "C-x >" "view content left"
+  "C-x <" "view content right"
+  "C-x a" "abbrev"
+  "C-x b" "project buffer"
+  "C-x x" "font and buffer"
+  "C-x r" "registers"
+  "C-x K" "kill buffer in all window"
+  "M-SPC p" "projectile"
+  "M-SPC g" "magit"
+  "M-SPC b" "switch buffer"
+  "M-SPC d" "dirvish"
+  "M-SPC w" "workspace"
   )
 ;; emacs模式技巧
 ;; 查看按键绑定 C-h k <key>
