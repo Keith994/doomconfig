@@ -6,10 +6,11 @@
 (setq catppuccin-flavor 'mocha
       doom-theme 'doom-dracula
       +workspaces-on-switch-project-behavior 'non-empty)
-(setq doom-font "Maple Mono NF CN-13.5")
+(setq doom-font "Maple Mono NF CN-11.5")
+(setq doom-font-increment 1)
 ;;(set-fontset-font "fontset-default" 'han (font-spec :family "WenQuanYi Micro Hei Mono"))
 
-;; ============================================================================
+;; =================================n===========================================
 ;; Window & Buffer Management
 ;; ============================================================================
 ;; (set-popup-rules! '(("^\\*helpful" :size 0.35)
@@ -28,20 +29,20 @@
 ;;                     ("\\*.*server log\\*$" :side top :size 0.20 :select nil)
 ;;                     ((lambda (buf _) (with-current-buffer buf (eq major-mode 'forge-topic-mode))) :size 0.35)))
 ;; Aider specific window placement
-(after! aider
-  (add-to-list 'display-buffer-alist
-               '((major-mode . #'aider-comint-mode)
-                 (display-buffer-in-side-window)
-                 (side . right)
-                 (slot . 0)
-                 (window-width . 0.4))))
+; (with-eval-after-load 'aider
+;   (add-to-list 'display-buffer-alist
+;                '((major-mode . #'aider-comint-mode)
+;                  (display-buffer-in-side-window)
+;                  (side . right)
+;                  (slot . 0)
+;                  (window-width . 0.4))))
 
 ;; ============================================================================
 ;; Syntax Highlighting & Colors
 ;; ============================================================================
 (defface breakpoint-enabled '((t)) "Breakpoint face.")
 
-(use-package! hl-todo
+(use-package hl-todo
   :hook (prog-mode . hl-todo-mode)
   :init
   ;; code here will run immediately
@@ -56,7 +57,7 @@
 (setq
  doom-modeline-icon t
  doom-modeline--eglot t
- doom-modeline-buffer-encoding t
+ doom-modeline-buffer-encoding nil
  doom-modeline-window-width-limit (- fill-column 10)
  doom-modeline-vcs-max-length 80
  doom-modeline-major-mode-icon t

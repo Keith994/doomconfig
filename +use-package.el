@@ -1,25 +1,30 @@
 ;;; +use-package.el -*- lexical-binding: t; -*-
 
+;; ============================================================================
+;; Completion & UI
+;; ============================================================================
+
 ;; Corfu Completion
-(use-package! corfu
+(use-package corfu
   :custom
   (corfu-auto-delay 0.2)
   (corfu-auto-prefix 2)
   (corfu-preselect 'prompt)          ;; 不预选任何候选项
-  ;; (corfu-preselect 'prompt)   ;; 预选输入提示（默认）
-  ;; (corfu-preselect 'first)    ;; 预选第一个候选项
-  ;; (corfu-preselect 'valid)    ;; 只在有精确匹配时预选
   (corfu-quit-no-match 'separator)
   :bind
   (:map corfu-map
         ("RET" . nil))
-  )
+  :config
+  ;; 全局启用 corfu
+  (global-corfu-mode 1))
 
-(use-package! multiple-cursors)
-
-(after! consult
-  (setq project--list nil))
-
+;; Multiple Cursors
+(use-package multiple-cursors
+  :defer t
+  :bind (("C-S-c C-S-c" . mc/edit-lines)
+         ("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this)
+         ("C-c C-<" . mc/mark-all-like-this)))
 
 ;; Better Jumper
 (add-hook! 'better-jumper-post-jump-hook #'recenter)
@@ -29,7 +34,9 @@
 ;; ============================================================================
 
 ;; Dirvish (Enhanced Dired)
-(after! dirvish
+(use-package dirvish
+  :defer t
+  :config
   (setq dirvish-attributes
         '(vc-state file-size nerd-icons collapse subtree-state file-time))
   (setq dirvish-quick-access-entries
@@ -40,14 +47,15 @@
           ("D" "~/Downloads" "Downloads")
           ("e" ,doom-user-dir "Doom directory")
           ("E" ,doom-emacs-dir "Emacs directory")))
-  
+
   (setq dirvish-hide-details '(dired dirvish dirvish-side)
-        dirvish-hide-cursor '(dired dirvish dirvish-side))
-  
-  )
+        dirvish-hide-cursor '(dired dirvish dirvish-side)))
 
 ;; IBuffer Enhancement
-(after! ibuffer
+(use-package all-the-icons-ibuffer
+  :after ibuffer
+  :hook (ibuffer-mode . all-the-icons-ibuffer-mode)
+  :config
   (setq-hook! 'ibuffer-hook ibuffer-formats
               '((mark modified read-only locked " "
                  (name 50 18 :left :elide)
@@ -60,49 +68,23 @@
                       (name 16 -1)
                       " " filename))))
 
-(use-package! all-the-icons-ibuffer
-  :after ibuffer
-  :init (all-the-icons-ibuffer-mode 1))
-
-;; ============================================================================
-;; Completion & UI
-;; ============================================================================
-
-;; Vertico Completion
-(setq vertico-posframe-border-width 1)
-(setq vertico-posframe-poshandler #'posframe-poshandler-frame-bottom-center)
-;; Fix jump issue for vertico
-(dolist (func '(+default/search-project))
-  (advice-add func :around #'doom-set-jump-a))
-
 ;; ============================================================================
 ;; Terminal & Shell
 ;; ============================================================================
 
 ;; Term Mode
-(after! term
-  (add-hook! 'term-mode-hook (setq-local imenu-generic-expression '(("Prompt" "➜\\(.*\\)" 1)))))
+(add-hook! 'term-mode-hook
+  (setq-local imenu-generic-expression '(("Prompt" "➜\\(.*\\)" 1))))
 
 ;; Process Menu
 (add-hook! 'process-menu-mode-hook
-  (setq-local tabulated-list-format [("Process" 30 t)
-                                     ("PID"      7 t)
-                                     ("Status"   7 t)
-                                     ("Buffer"  15 t)
-                                     ("TTY"     12 t)
-                                     ("Command"  0 t)]))
-
-;; ============================================================================
-;; AI & Coding Assistance
-;; ============================================================================
-
-;; Aider (AI Coding Assistant)
-(use-package! aider
-  :config
-  (setq aider-args '("--model" "deepseek/deepseek-coder"))
-  (require 'aider-doom))
-;; Comint Mode Settings
-(add-hook! 'comint-mode-hook #'visual-line-mode)
+  (setq-local tabulated-list-format
+              [("Process" 30 t)
+               ("PID"      7 t)
+               ("Status"   7 t)
+               ("Buffer"  15 t)
+               ("TTY"     12 t)
+               ("Command"  0 t)]))
 
 ;; ============================================================================
 ;; Debugging & Development
@@ -110,62 +92,79 @@
 
 ;; Dape Debugger Configuration
 (when (modulep! :tools debugger)
-  (setq dape-breakpoint-margin-string "")
-  (defun +my/dape-breakpoint-toggle ()
-    (interactive)
-    (require 'dape)
-    (dape-breakpoint-toggle)
-    (+go/write-project-breakpoints))
+  (use-package dape
+    :defer t
+    :config
+    (setq dape-breakpoint-margin-string "")
 
-  (defun +my/dape-breakpoint-remove-all ()
-    (interactive)
-    (require 'dape)
-    (dape-breakpoint-remove-all)
-    (+go/write-project-breakpoints))
+    (defun +my/dape-breakpoint-toggle ()
+      "Toggle breakpoint and save to project file."
+      (interactive)
+      (require 'dape)
+      (dape-breakpoint-toggle)
+      (+go/write-project-breakpoints))
 
-  (after! dape
-    (setq dape-configs (assq-delete-all 'dlv dape-configs))
-    (add-to-list 'dape-configs
-                 `(delve
-                   modes (go-mode go-ts-mode)
-                   ensure dape-ensure-command
-                   fn (dape-config-autoport dape-config-tramp)
-                   command "dlv"
-                   command-args ("dap" "--listen" "127.0.0.1::autoport")
-                   command-insert-stderr t
-                   command-cwd (lambda()(if (string-suffix-p "_test.go" (buffer-name))
-                                            default-directory (dape-cwd)))
-                   port :autoport
-                   :type "debug"
-                   :request "launch"
-                   :mode (lambda() (if (string-suffix-p "_test.go" (buffer-name)) "test" "debug"))
-                   :program "."
-                   :cwd "."
-                   :args (lambda()
-                           (if (string-suffix-p "_test.go" (buffer-name))
-                               (save-excursion
-                                 (when (re-search-backward "^func[ \t]+\\(\\(\\w\\|\\s_\\)+\\)" nil t)
-                                   (let* ((test-name (match-string 1))
-                                          (test-regexp (concat "^" test-name "$")))
-                                     `["-test.run" ,test-regexp])))
-                             []))))
-    ))
+    (defun +my/dape-breakpoint-remove-all ()
+      "Remove all breakpoints and save to project file."
+      (interactive)
+      (require 'dape)
+      (dape-breakpoint-remove-all)
+      (+go/write-project-breakpoints))
+
+    ;; 配置 Go 调试器
+    (setq dape-configs
+          (cons `(delve
+                  modes (go-mode go-ts-mode)
+                  ensure dape-ensure-command
+                  fn (dape-config-autoport dape-config-tramp)
+                  command "dlv"
+                  command-args ("dap" "--listen" "127.0.0.1::autoport")
+                  command-insert-stderr t
+                  command-cwd (lambda ()
+                                (if (string-suffix-p "_test.go" (buffer-name))
+                                    default-directory
+                                  (dape-cwd)))
+                  port :autoport
+                  :type "debug"
+                  :request "launch"
+                  :mode (lambda ()
+                          (if (string-suffix-p "_test.go" (buffer-name))
+                              "test"
+                            "debug"))
+                  :program "."
+                  :cwd "."
+                  :args (lambda ()
+                          (if (string-suffix-p "_test.go" (buffer-name))
+                              (save-excursion
+                                (when (re-search-backward "^func[ \t]+\\(\\(\\w\\|\\s_\\)+\\)" nil t)
+                                  (let* ((test-name (match-string 1))
+                                         (test-regexp (concat "^" test-name "$")))
+                                    `["-test.run" ,test-regexp])))
+                            [])))
+                (assq-delete-all 'dlv dape-configs)))))
 
 ;; ============================================================================
 ;; Utilities
 ;; ============================================================================
 
 ;; Consult Todo
-(use-package! consult-todo :defer t)
+(use-package consult-todo
+  :defer t)
 
 ;; Keycast
-(use-package! keycast :ensure t :defer t)
+(use-package keycast
+  :ensure t
+  :defer t)
 
 ;; Enable visual-line-mode in compilation buffers
 (add-hook! compilation-mode #'visual-line-mode)
 
+;; ============================================================================
+;; Language-specific configurations
+;; ============================================================================
 
-(after! go-ts-mode
+;; Go language utilities
+(with-eval-after-load 'go-ts-mode
   (defun +go/go-alt ()
     "Create or go to the corresponding _test.go file for the current Go file."
     (interactive)
@@ -191,8 +190,8 @@
                             (go-package-name current-dir)))
             (save-buffer)))))))
 
-(after! java-ts-mode
-  ;;;###autoload
+;; Java language utilities
+(with-eval-after-load 'java-ts-mode
   (defun +java/copy-java-class-path ()
     "Copy the fully qualified Java class name to clipboard."
     (interactive)
@@ -213,3 +212,207 @@
       (when fqn
         (kill-new fqn)
         (message "Copied: %s" fqn)))))
+
+;; ============================================================================
+;; Emacs Everywhere (Wayland/Niri specific)
+;; ============================================================================
+
+(defun my-emacs-everywhere/update-niri-socket ()
+  "Update NIRI_SOCKET environment variable for Wayland/Niri."
+  (let* ((rundir (format "/run/user/%d/" (user-uid)))
+         (sockets (when (file-directory-p rundir)
+                    (directory-files rundir nil "^niri.*sock$" t)))
+         (socket-file (if (consp sockets)
+                          (concat rundir (car sockets))
+                        nil)))
+    (if socket-file
+        (setenv "NIRI_SOCKET" socket-file)
+      (message "Could not find an active niri socket"))))
+
+(use-package emacs-everywhere
+  :config
+  (my-emacs-everywhere/update-niri-socket)
+  (setq emacs-everywhere-frame-name-format nil)
+
+  (setq emacs-everywhere-system-configs
+        (append emacs-everywhere-system-configs
+                '(((wayland . niri)
+                   :paste-command (("ydotool" "key" "29:1" "42:1" "47:1" "47:0" "42:0" "29:0"))
+                   :copy-command ("sh" "-c" "wl-copy --type \"text/plain\" < %f; rm %f; cliphist list | head -1 | cliphist decode | wl-copy")
+                   :focus-command ("niri" "msg" "action" "focus-window" "--id" "%w")
+                   :info-function emacs-everywhere--app-info-linux-niri))))
+
+  (defun emacs-everywhere--app-info-linux-niri ()
+    "Return information on the current active window, on a Linux Niri session."
+    (require 'json)
+    (let* ((json-raw (emacs-everywhere--call "niri" "msg" "-j" "focused-window"))
+           (is-err (string-prefix-p "Error" json-raw)))
+      (if is-err
+          (error "[emacs-everywhere] Error in `niri msg -j focused-window' (see *messages*)")
+        (let* ((json (json-read-from-string json-raw))
+               (wid (cdr (assq 'id json)))
+               (window-id (if (numberp wid) (number-to-string wid) wid))
+               (window-title (cdr (assq 'title json)))
+               (app-name (cdr (assq 'app_id json))))
+          (make-emacs-everywhere-app
+           :id window-id
+           :class app-name
+           :title window-title
+           :geometry nil))))))
+
+;; ============================================================================
+;; AI & Coding Assistance
+;; ============================================================================
+
+;; GPTel configuration
+(use-package gptel
+  :defer t
+  :config
+  (defun gptel-api-key-from-environment (&optional var)
+    "Return a lambda function that retrieves an API key from environment variables."
+    (lambda ()
+      (getenv (or var
+                  (thread-first
+                    (type-of gptel-backend)
+                    (symbol-name)
+                    (substring 6)
+                    (upcase)
+                    (concat "_API_KEY"))))))
+
+  (gptel-make-gh-copilot "Copilot")
+  (gptel-make-privategpt "deepseek-coder"
+    :protocol "https"
+    :host "api.deepseek.com/beta"
+    :stream t
+    :key (gptel-api-key-from-environment "DEEPSEEK_API_KEY")
+    :context t
+    :sources t
+    :models '(deepseek-coder))
+  (gptel-make-deepseek "DeepSeek"
+    :stream t
+    :key (gptel-api-key-from-environment "DEEPSEEK_API_KEY"))
+  (setq gptel-model 'deepseek-coder
+        gptel-backend (gptel-get-backend "deepseek-coder")))
+
+;; ============================================================================
+;; Project Management
+;; ============================================================================
+
+;; Clear project list for consultdefault/search-project))
+                                        ;(advice-add func :around #'doom-set-jump-a)
+
+;; Icons
+;; (use-package! nerd-icons
+;;   :commands nerd-icons-install-fonts
+;;   )
+;; ;; Colorize color names in buffers
+;; (use-package! colorful-mode
+;;   :diminish
+;;   :hook (after-init . global-colorful-mode)
+;;   :init (setq colorful-use-prefix t))
+
+;; ;; Child frame
+;; (use-package! posframe
+;;   :custom-face
+;;   (child-frame-border ((t (:inherit posframe-border))))
+;;   :hook (after-load-theme . posframe-delete-all)
+;;   :init
+;;   (defface posframe-border
+;;     `((t (:inherit region)))
+;;     "Face used by the `posframe' border."
+;;     :group 'posframe)
+;;   (defvar posframe-border-width 2
+;;     "Default posframe border width.")
+;;   :config
+;;   (with-no-warnings
+;;     (defun my-posframe--prettify-frame (&rest _)
+;;       (set-face-background 'fringe nil posframe--frame))
+;;     (advice-add #'posframe--create-posframe :after #'my-posframe--prettify-frame)
+
+;;     (defun posframe-poshandler-frame-center-near-bottom (info)
+;;       (cons (/ (- (plist-get info :parent-frame-width)
+;;                   (plist-get info :posframe-width))
+;;                2)
+;;             (/ (+ (plist-get info :parent-frame-height)
+;;                   (* 2 (plist-get info :font-height)))
+;;                2)))))
+
+;; (use-package! hydra
+;;   :defines (consult-imenu-config posframe-border-width)
+;;   :functions 't
+;;   :hook ((emacs-lisp-mode  . hydra-add-imenu)
+;;          (after-load-theme . hydra-set-posframe-appearance))
+;;   :init
+;;   (with-eval-after-load 'consult-imenu
+;;     (setq consult-imenu-config
+;;           '((emacs-lisp-mode :toplevel "Functions"
+;;                              :types ((?f "Functions" font-lock-function-name-face)
+;;                                      (?h "Hydras"    font-lock-constant-face)
+;;                                      (?m "Macros"    font-lock-function-name-face)
+;;                                      (?p "Packages"  font-lock-constant-face)
+;;                                      (?t "Types"     font-lock-type-face)
+;;                                      (?v "Variables" font-lock-variable-name-face))))))
+
+;;   (defun hydra-set-posframe-appearance ()
+;;     "Set appearance of hydra."
+;;     (when 't
+;;       (setq hydra-hint-display-type 'posframe)
+;;       (setq hydra-posframe-show-params
+;;             `(:left-fringe 8
+;;               :right-fringe 8
+;;               :internal-border-width ,posframe-border-width
+;;               :internal-border-color ,(face-background 'posframe-border nil t)
+;;               :background-color ,(face-background 'default nil t)
+;;               :foreground-color ,(face-foreground 'default nil t)
+;;               :lines-truncate t
+;;               :poshandler posframe-poshandler-frame-center-near-bottom))))
+;;   (hydra-set-posframe-appearance))
+
+
+;; (use-package! pretty-hydra
+;;   :functions 't
+;;   :bind ("<f6>" . toggles-hydra/body)
+;;   :hook (emacs-lisp-mode . pretty-hydra-add-imenu)
+;;   :init
+;;   (defun pretty-hydra-add-imenu ()
+;;     "Have hydras in `imenu'."
+;;     (add-to-list 'imenu-generic-expression
+;;                  '("Hydras" "^.*(\\(pretty-hydra-define\\) \\([a-zA-Z-]+\\)" 2)))
+
+;;   (cl-defun pretty-hydra-title (title &optional icon-type icon-name
+;;                                       &key face height v-adjust)
+;;     "Add an icon in the hydra title."
+;;     (let ((face (or face 'mode-line-emphasis))
+;;           (height (or height 1.2))
+;;           (v-adjust (or v-adjust 0.0)))
+;;       (concat
+;;        (when (and 't icon-type icon-name)
+;;          (let ((f (intern (format "nerd-icons-%s" icon-type))))
+;;            (when (fboundp f)
+;;              (concat
+;;               (apply f (list icon-name :face face :height height :v-adjust v-adjust))
+;;               " "))))
+;;        (propertize title 'face face))))
+;;   :config
+;;   (with-no-warnings
+;;     ;; Define hydra for global toggles
+;;     (pretty-hydra-define toggles-hydra
+;;       (:title (pretty-hydra-title "ToggleMode" 'faicon "nf-fa-toggle_on")
+;;        :color amaranth :quit-key ("q" "C-g"))
+;;       ("Basic"
+;;        (("n" display-line-numbers-mode "line number" :toggle t)
+;;         ("e" electric-pair-mode "electric pair *" :toggle t)
+;;         ("c" flyspell-mode "spell check" :toggle t)
+;;         ("s" prettify-symbols-mode "pretty symbol" :toggle t)
+;;         ("b" display-battery-mode "battery *" :toggle t)
+;;         ("i" display-time-mode "time *" :toggle t)
+;;         ("m" doom-modeline-mode "modern mode-line *" :toggle t))
+;;        "Program"
+;;        (("f" flymake-mode "flymake" :toggle t)
+;;         ("W" which-function-mode "current function *" :toggle t)
+;;         ("v" global-diff-hl-mode "gutter *" :toggle t)
+;;         ("V" diff-hl-flydiff-mode "live gutter *" :toggle t)
+;;         ("M" diff-hl-margin-mode "margin gutter *" :toggle t))
+;;        )
+;;     )
+;;   ))

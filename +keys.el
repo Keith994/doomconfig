@@ -9,12 +9,16 @@
 (dolist (key '("l" "e" "p" "C-b"))
   (map! :prefix "C-c " key 'nil))
 
+;; M-g
 (map! :map  goto-map
       "<TAB>" 'nil
       :desc "list errors" "e" 'flymake-show-buffer-diagnostics
       :desc "lsp doc" "y" 'lsp-ui-doc-glance
       :desc "avy jump char" "c" 'avy-goto-char-2
       :desc "disable" "M-c" 'nil
+      :desc "goto file" "f" '+lookup/file
+      :desc "goto file" "M-f" #'+lookup/file
+      :desc "xdg open at point" "x" #'browse-url
       :desc "imenu" "i" 'imenu)
 
 (map! :desc "centaur-tabs forward" "M-] M-]" #'centaur-tabs-forward
@@ -22,7 +26,9 @@
       :desc "vc-next-hunk" "M-] g" #'+vc-gutter/next-hunk
       :desc "vc-previous-hunk" "M-[ g" #'+vc-gutter/previous-hunk
       :desc "flymake-goto-next-error" "M-] e" #'flymake-goto-next-error
-      :desc "flymake-goto-previous-error" "M-[ e" #'flymake-goto-prev-error)
+      :desc "flymake-goto-previous-error" "M-[ e" #'flymake-goto-prev-error
+      :desc "end of fun" "M-] f" #'end-of-defun
+      :desc "beginning of fun" "M-[ f" #'beginning-of-defun)
 
 (map! :prefix "M-SPC" ;; M-SPC 开头的快捷键
       :desc "find file" "M-SPC" #'consult-find-file-or-projectile ;; M-SPC M-SPC 打开文件
@@ -52,14 +58,16 @@
       (:prefix "b"
        :desc "switch buffer" "b" #'switch-to-buffer ;; M-SPC b b 切换buffer
        :desc "previous buffer" "p" #'previous-buffer ;; M-SPC b p 上一个buffer
-       :desc "next buffer" "n" #'next-buffer ;; M-SPC b n 下一个buffer
+       :desc "next buffer" "n" #'next-buffer ;; M-SPC bn n 下一个buffer
        :desc "kill buffer" "k" #'kill-this-buffer ;; M-SPC b k 关闭当前buffer
        :desc "ibuffers" "i" #'ibuffer ;; M-SPC b i 列出所有buffer
        :desc "revert buffer" "r" #'revert-buffer ;; M-SPC b r 刷新当前buffer
        :desc "kill other buffers" "c" #'doom/kill-other-buffers ;; M-SPC b o 关闭其他buffer
+       :desc "open project scratch buffer" "x" #'doom/open-project-scratch-buffer ;; M-SPC b x 打开scratch buffer
+       :desc "open scratch" "o" #'doom/open-scratch-buffer ;; M-SPC b s 打开scratch buffer
        )
       (:prefix "g"
-       :desc "magit status" "g" #'magit-status ;; M-SPC g s 打开magit状态
+       :desc "magit status" "g" #'magit-status ;; M-SPC g g 打开magit状态
        :desc "magit dispatch" "d" #'magit-dispatch ;; M-SPC g d 打开magit调度
        :desc "magit pull" "p" #'magit-pull ;; M-SPC g p 拉取最新代码
        :desc "magit push" "P" #'magit-push ;; M-SPC g P 推送代码
@@ -86,7 +94,9 @@
       (:prefix "w"
        :desc "split window right" "v" #'split-window-right ;; M-SPC w s 符合vim习惯
        :desc "save session" "s" #'+workspace/save ;; M-SPC W s 保存工作区
-       :desc "recover session" "r" #'+workspace/restore-last-session ;; M-SPC W r 恢复上次工作区
+       :desc "load session" "l" #'+workspace/load ;; M-SPC W l 加载工作区
+       :desc "recover last session" "r" #'+workspace/restore-last-session ;; M-SPC w r 回复最后一次会话
+       :desc "rename workspace" "R" #'+workspace/rename ;; M-SPC w R 重命名工作区
        :desc "new workspace" "n" #'+workspace/new ;; M-SPC W n 新建工作区
        :desc "kill workspace" "d" #'+workspace/kill ;; M-SPC W d 删除工作区
        :desc "display workspaces" "i" #'+workspace/display ;; M-SPC W i 显示工作区列表
@@ -110,13 +120,14 @@
       "(" 'sp/wrap-with-pair       ;; C-x ( 添加括号对
       )
 
-(after! lsp-mode
+(with-eval-after-load 'lsp-mode
   (map! :map lsp-mode-map
         "M-a" #'lsp-execute-code-action
         "M-r" #'lsp-rename ;; M-r 重命名符号
         "M-k" #'lsp-ui-doc-glance ;; M-k 查看文档
         "M-?" #'lsp-find-references ;; M-? 查找引用
         "M-." #'lsp-find-definition ;; M-. 跳转定义
+        "C-M-." #'lsp-find-type-definition
         "<f9>"  #'dape-breakpoint-toggle
         "<f10>" #'dape-next
         "<f11>" #'dape-step-in
@@ -127,13 +138,32 @@
                     (dape)))
         "<S-f5>" #'dape-quit
         "C-<f10>" #'dape-until))
+(with-eval-after-load 'python-ts-mode
+  (map! :map python-ts-mode-map
+        :desc "uv run main.py" "C-c C-r" (lambda () (interactive) (compile "uv run main.py"))))
 
 (setq which-key-idle-delay 0.2
       which-key-idle-secondary-delay 0.1)
 
+(with-eval-after-load 'embark
+  (dolist (map '(embark-identifier-map
+                 embark-command-map
+                 embark-function-map
+                 embark-symbol-map
+                 embark-variable-map))
+    (define-key (symbol-value map) (kbd "i") #'+lookup/implementations)
+    (define-key (symbol-value map) (kbd "r") #'+lookup/references)
+    (define-key (symbol-value map) (kbd "d") #'+lookup/definition)
+    (define-key (symbol-value map) (kbd "D") #'+lookup/type-definition)
+    (define-key (symbol-value map) (kbd "k") #'+lookup/documentation)
+    ))
 
+;; global key
 (map! "C-_" 'nil
       "M-_" 'nil
+      "M-u" 'smart-upcase-char-or-word
+      "M-l" 'smart-downcase-char-or-word
+      "C-o" #'pop-global-mark ;; C-o 跳回上一个光标位置
       "C-c C-k" #'+format/region-or-buffer ;; C-c C-k 格式化代码
       "C-z" #'undo-fu-only-undo ;; C-z 撤销
       "C-S-z" #'undo-fu-only-redo ;; C-S-z 重做
@@ -145,17 +175,24 @@
       "C--" #'er/contract-region      ;; C-x - 收缩选择区域
       "C-=" #'er/expand-region ;; C-= 扩大选择区域
       "C-u" #'delete-to-beginning-of-line ;; C-u 删除到行首
-      "C-'" #'avy-goto-char-2 ;; C-RET 快速跳转到单词
-      "M-/" #'consult-line ;; M-/ 搜索当前buffer
+      "M-s" #'avy-goto-char-2 ;; C-RET 快速跳转到单词
+      "M-/" #'dabbrev-completion ;; M-/ 动态补全缓冲区单词
+      "C-M-/" #'dabbrev-expand ;; C-M-/ 动态展开缓冲区单词
       "M-k" #'+lookup/documentation ;; M-k 查看文档
       "M-o" #'copilot-complete ;; M-o copilot补全
       "C-S-l" #'duplicate-line ;; C-S-l 复制当前行
       "C->" #'mc/mark-next-like-this
       "C-<" #'mc/mark-previous-like-this
       "C-c C->" #'mc/mark-all-like-this
+      "C-SPC" #'smart-mark-or-expand-region
+      "M-1" #'+workspace/switch-to-0
+      "M-2" #'+workspace/switch-to-1
+      "M-3" #'+workspace/switch-to-2
+      "M-4" #'+workspace/switch-to-3
+      "M-5" #'+workspace/switch-to-4
       )
 
-(after! evil
+(with-eval-after-load 'evil
   (evil-mode -1)
   (map! :map evil-normal-state-map
         "C-n" #'next-line ;; C-n 向下
@@ -186,7 +223,7 @@
         "C--" #'er/contract-region      ;; C-x - 收缩选择区域
         "C-u" #'delete-to-beginning-of-line ;; C-u 删除到行首
         "C-v" #'evil-scroll-page-down ;; C-v 向下翻页
-        "M-v" #'evil-scroll-page-up ;; M-v 向上
+        "M-vp" #'evil-scroll-page-up ;; M-v 向上
         "C-'" #'avy-goto-char-2 ;; C-RET 快速跳转到单词
         )
   (map! :map  corfu-mode-map
@@ -211,13 +248,18 @@
   "M-SPC g" "magit"
   "M-SPC b" "switch buffer"
   "M-SPC d" "dirvish"
-  "M-SPC w" "workspace"
+  "M-SPC w" "workspacape"
+  "M-SPC m" "mark and bookmark"
   )
 ;; emacs模式技巧
 ;; 查看按键绑定 C-h k <key>
-;; C-M-<end> 跳转到函数末尾 C-M-<home> 跳转到函数开头
+;; C-M-<end> 跳转到函数末尾
+;; C-M-<home> 跳转到函数开头
 ;; C-M-f 跳转字符串或者括号的下一个位置 C-M-b 跳转字符串或者括号的上一个位置
 ;; C-M-d
+;; C-M-Backspace 删除括号或双引号
+;; C-/ undo
+;; C-S-/ redo
 ;; 删除括号或者双引号里面的内容,可以使用embark  C-; Backspace键 也可以连续使用C-space 选择内容后使用C-w删除
 ;; 使用C-x M-: 查看复杂的传参的函数调用
 ;; M-i tab

@@ -51,7 +51,7 @@
       gc-cons-threshold (* 500 1024 1024)  ; 500MB
       gc-cons-percentage 0.6)
 
-(after! gcmh
+(with-eval-after-load 'gcmh
   (setq gcmh-idle-delay 60          ; 更频繁的GC
         gcmh-auto-idle-delay-factor 0.3
         gcmh-high-cons-threshold (* 500  1024 1024)

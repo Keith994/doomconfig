@@ -18,12 +18,12 @@
        tabs              ; a tab bar for Emacs
        ;unicode           ; extended unicode support for various languages
        (vc-gutter +pretty) ; vcs diff in the fringe
-       vi-tilde-fringe   ; fringe tildes to mark beyond EOB
+       ;;vi-tilde-fringe   ; fringe tildes to mark beyond EOB
        (window-select +numbers)    ; visually switch windows
        workspaces        ; tab emulation, persistence & separate workspaces
 
        :editor
-       (evil +everywhere); come to the dark side, we have cookies
+       ;;(evil +everywhere); come to the dark side, we have cookies
        file-templates    ; auto-snippets for empty files
        fold              ; (nigh) universal code folding
        (format +lsp)  ; automated prettiness
@@ -42,6 +42,7 @@
        :tools
        debugger          ; FIXME stepping through code, to help you add bugs
        direnv
+       llm
        ;;docker
        editorconfig      ; let someone else argue about tabs vs spaces
        (eval +overlay)     ; run code, run (also, repls)
@@ -67,6 +68,11 @@
        (rust +lsp)       ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        (rust +lsp +tree-sitter)                                                         ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        (yaml +lsp +tree-sitter)                                                           ; JSON, but readable
+
+       :app
+       ;;calendar
+       ;;emms
+       everywhere        ; *leave* Emacs!? You must be joking
 
        :config
        (default +bindings +smartparens))

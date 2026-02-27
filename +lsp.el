@@ -28,6 +28,7 @@
 (add-hook! java-ts-mode
   (lsp))
 (add-hook! 'go-ts-mode-hook
+  (setq go-ts-mode-indent-offset 2)
   (setq tab-width 2))
 
 ;; 诊断函数：查看 xref 项目的详细信息
@@ -49,13 +50,13 @@
 
 
 
-(after! lsp-mode
+(with-eval-after-load 'lsp-mode
   (defun my/fix-encoding-preserving-properties (str)
     "Fix encoding in STR while preserving text properties."
     ;; 检查是否真的需要修复（包含非ASCII字符但不是有效的多字节字符串）
     (if (string-match "[^\x00-\x7F]" str)
         (let* ((props-list nil)
-              (fixed-str
+               (fixed-str
                 (or (ignore-errors (decode-coding-string str 'utf-8))
                     (ignore-errors (decode-coding-string str 'gbk))
                     (ignore-errors (decode-coding-string str 'gb2312))
@@ -71,7 +72,7 @@
                   (properties (nth 2 prop)))
               ;; 确保位置不超过新字符串的长度
               (when (and (<= start (length fixed-str))
-                        (<= end (length fixed-str)))
+                         (<= end (length fixed-str)))
                 (add-text-properties start end properties fixed-str))))
           fixed-str)
       str))
@@ -84,7 +85,7 @@
           (result nil))
       (while (< pos len)
         (let* ((props (text-properties-at pos string))
-              (next-change (or (next-property-change pos string) len)))
+               (next-change (or (next-property-change pos string) len)))
           (when props
             (push (list pos next-change props) result))
           (setq pos next-change)))
@@ -113,27 +114,27 @@
         lsp-headerline-breadcrumb-segments '(file symbols)
         lsp-imenu-index-symbol-kinds '(File Module Namespace Package Class Method Enum Interface
                                        Function Variable Constant Struct Event Operator TypeParameter))
-(dolist (dir '("[/\\\\]\\.ccls-cache\\'"
-               "[/\\\\]\\.mypy_cache\\'"
-               "[/\\\\]\\.pytest_cache\\'"
-               "[/\\\\]\\.cache\\'"
-               "[/\\\\]\\.clwb\\'"
-               "[/\\\\]\\.env\\'"
-               "[/\\\\]__pycache__\\'"
-               "[/\\\\]bazel-bin\\'"
-               "[/\\\\]bazel-code\\'"
-               "[/\\\\]bazel-genfiles\\'"
-               "[/\\\\]bazel-out\\'"
-               "[/\\\\]bazel-testlogs\\'"
-               "[/\\\\]third_party\\'"
-               "[/\\\\]third-party\\'"
-               "[/\\\\]buildtools\\'"
-               "[/\\\\]out\\'"
-               "[/\\\\]build\\'"
-               ))
-  (push dir lsp-file-watch-ignored-directories)))
+  (dolist (dir '("[/\\\\]\\.ccls-cache\\'"
+                 "[/\\\\]\\.mypy_cache\\'"
+                 "[/\\\\]\\.pytest_cache\\'"
+                 "[/\\\\]\\.cache\\'"
+                 "[/\\\\]\\.clwb\\'"
+                 "[/\\\\]\\.env\\'"
+                 "[/\\\\]__pycache__\\'"
+                 "[/\\\\]bazel-bin\\'"
+                 "[/\\\\]bazel-code\\'"
+                 "[/\\\\]bazel-genfiles\\'"
+                 "[/\\\\]bazel-out\\'"
+                 "[/\\\\]bazel-testlogs\\'"
+                 "[/\\\\]third_party\\'"
+                 "[/\\\\]third-party\\'"
+                 "[/\\\\]buildtools\\'"
+                 "[/\\\\]out\\'"
+                 "[/\\\\]build\\'"
+                 ))
+    (push dir lsp-file-watch-ignored-directories)))
 
-(after! lsp-ui
+(with-eval-after-load 'lsp-ui
   (setq lsp-ui-doc-enable t
         lsp-lens-enable nil
         lsp-ui-sideline-enable nil
@@ -145,18 +146,18 @@
 ;; AI & Coding Assistance
 ;; accept completion from copilot and fallback to company
 ;; ===========================================================================
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
+(use-package copilot
   :bind (:map copilot-completion-map
               ("M-n" . 'copilot-previous-completion) ;; 默认是 M-p 和 M-n，和 Emacs 的默认快捷键冲突了，所以改成 M-n 和 M-p
               ("M-p" . 'copilot-next-completion)
               ("<tab>" . 'copilot-accept-completion)
+              ("C-e" . 'copilot-accept-completion)
               ("TAB" . 'copilot-accept-completion))
   :config
   (add-to-list 'copilot-indentation-alist '(prog-mode 2))
   (add-to-list 'copilot-indentation-alist '(org-mode 2)))
 
-; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file
+                                        ; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file
 (defun lsp-booster--advice-json-parse (old-fn &rest args)
   "Try to parse bytecode instead of json."
   (or

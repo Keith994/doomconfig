@@ -3,8 +3,7 @@
 (defun delete-to-beginning-of-line ()
   "Delete from point to the beginning of the line."
   (interactive)
-  (delete-region (point) (line-beginning-position))
-  (delete-char 1 nil))
+  (delete-region (point) (line-beginning-position)))
 
 (defun consult-find-file-or-projectile ()
   "在projectile项目中查找文件,否则使用consult-find-file"
@@ -31,7 +30,7 @@
         (list
          (cons
           "\\*Async Shell Command\\*.*"
-          (cons #'display-buffer-no-window nil)))))
+          (ons #'display-buffer-no-window nil)))))
     (async-shell-command
      command nil nil)))
 
@@ -97,3 +96,37 @@ If MULTI-LINE, make every path occupy a new line."
         (if other-buffers
             (switch-to-buffer (car other-buffers))
           (switch-to-buffer (generate-new-buffer "*scratch*")))))))
+
+;;;###autoload
+(defun smart-mark-or-expand-region ()
+  "智能标记/扩展选区"
+  (interactive)
+  (if (region-active-p)
+      (progn
+        ;; 扩展选区
+        (if (fboundp 'er/expand-region)
+            (er/expand-region 1)
+          (message "expand-region 未安装")
+          (exchange-point-and-mark))
+        ;; 显示扩展后的选区大小
+        (message "选区扩展: %d 字符"
+                 (abs (- (mark) (point)))))
+    ;; 设置新标记
+    (set-mark-command nil)
+    (message "标记已设置")))
+
+(defun smart-upcase-char-or-word ()
+  "智能大写当前字符或单词"
+  (interactive)
+    (if (use-region-p)
+        (upcase-region (region-beginning) (region-end)) ;; 如果有选区，转换选区内的文本为大写
+      (upcase-char 1))) ;; 否则，大写当前字符
+
+(defun smart-downcase-char-or-word ()
+  "智能小写当前字符或单词"
+  (interactive)
+    (if (use-region-p)
+        (downcase-region (region-beginning) (region-end)) ;; 如果有选区，转换选区内的文本为小写
+      (progn
+        (downcase-region (point) (progn (forward-char 1) (point)))
+        (backward-char 1)))) ;; 否则，小写当前字符
