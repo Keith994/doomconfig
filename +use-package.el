@@ -283,12 +283,19 @@
   (gptel-make-gh-copilot "Copilot")
   (gptel-make-privategpt "deepseek-coder"
     :protocol "https"
-    :host "api.deepseek.com/beta"
+    :host "api.deepseek.com"
+    :endpoint "/beta/v1/chat/completions"
     :stream t
     :key (gptel-api-key-from-environment "DEEPSEEK_API_KEY")
     :context t
     :sources nil
-    :models '(deepseek-coder))
+    :header (lambda () (when-let* ((key (gptel--get-api-key)))
+                          `(("Authorization" . ,(concat "Bearer " key)))))
+    :models '(deepseek-coder
+                     :capabilities (tool)
+                     :context-window 128
+                     :input-cost 0.56
+                     :output-cost 1.68))
   (gptel-make-deepseek "DeepSeek"
     :stream t
     :key (gptel-api-key-from-environment "DEEPSEEK_API_KEY"))
