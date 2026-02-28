@@ -260,6 +260,7 @@
            :title window-title
            :geometry nil))))))
 
+
 ;; ============================================================================
 ;; AI & Coding Assistance
 ;; ============================================================================
@@ -286,7 +287,7 @@
     :stream t
     :key (gptel-api-key-from-environment "DEEPSEEK_API_KEY")
     :context t
-    :sources t
+    :sources nil
     :models '(deepseek-coder))
   (gptel-make-deepseek "DeepSeek"
     :stream t
@@ -312,30 +313,30 @@
 ;;   :init (setq colorful-use-prefix t))
 
 ;; ;; Child frame
-;; (use-package! posframe
-;;   :custom-face
-;;   (child-frame-border ((t (:inherit posframe-border))))
-;;   :hook (after-load-theme . posframe-delete-all)
-;;   :init
-;;   (defface posframe-border
-;;     `((t (:inherit region)))
-;;     "Face used by the `posframe' border."
-;;     :group 'posframe)
-;;   (defvar posframe-border-width 2
-;;     "Default posframe border width.")
-;;   :config
-;;   (with-no-warnings
-;;     (defun my-posframe--prettify-frame (&rest _)
-;;       (set-face-background 'fringe nil posframe--frame))
-;;     (advice-add #'posframe--create-posframe :after #'my-posframe--prettify-frame)
+(use-package posframe
+  :custom-face
+  (child-frame-border ((t (:inherit posframe-border))))
+  :hook (after-load-theme . posframe-delete-all)
+  :init
+  (defface posframe-border
+    `((t (:inherit region)))
+    "Face used by the `posframe' border."
+    :group 'posframe)
+  (defvar posframe-border-width 2
+    "Default posframe border width.")
+  :config
+  (with-no-warnings
+    (defun my-posframe--prettify-frame (&rest _)
+      (set-face-background 'fringe nil posframe--frame))
+    (advice-add #'posframe--create-posframe :after #'my-posframe--prettify-frame)
 
-;;     (defun posframe-poshandler-frame-center-near-bottom (info)
-;;       (cons (/ (- (plist-get info :parent-frame-width)
-;;                   (plist-get info :posframe-width))
-;;                2)
-;;             (/ (+ (plist-get info :parent-frame-height)
-;;                   (* 2 (plist-get info :font-height)))
-;;                2)))))
+    (defun posframe-poshandler-frame-center-near-bottom (info)
+      (cons (/ (- (plist-get info :parent-frame-width)
+                  (plist-get info :posframe-width))
+               2)
+            (/ (+ (plist-get info :parent-frame-height)
+                  (* 2 (plist-get info :font-height)))
+               2)))))
 
 ;; (use-package! hydra
 ;;   :defines (consult-imenu-config posframe-border-width)

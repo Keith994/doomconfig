@@ -156,7 +156,10 @@
     (define-key (symbol-value map) (kbd "d") #'+lookup/definition)
     (define-key (symbol-value map) (kbd "D") #'+lookup/type-definition)
     (define-key (symbol-value map) (kbd "k") #'+lookup/documentation)
-    ))
+    )
+  (map! :map embark-general-map
+        :desc "llm quick explain" "?" #'gptel-quick)
+  )
 
 ;; global key
 (map! "C-_" 'nil
@@ -230,6 +233,7 @@
         :i "C-SPC" 'set-mark-command ;; C-SPC 设置标记开始选择
         )
   )
+
 
 (which-key-add-key-based-replacements
   "C-x RET" "coding system"

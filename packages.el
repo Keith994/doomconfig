@@ -34,6 +34,7 @@
 ;; ============================================================================
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
+(package! posframe)
 ;; (package! aider :recipe (:host github :repo "tninja/aider.el"))
 ;;(unpin! :completion :ui :editor :emacs :checkers :lang :tools)
 ;; (package! nerd-icons)
