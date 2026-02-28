@@ -118,15 +118,85 @@ If MULTI-LINE, make every path occupy a new line."
 (defun smart-upcase-char-or-word ()
   "智能大写当前字符或单词"
   (interactive)
-    (if (use-region-p)
-        (upcase-region (region-beginning) (region-end)) ;; 如果有选区，转换选区内的文本为大写
-      (upcase-char 1))) ;; 否则，大写当前字符
+  (if (use-region-p)
+      (upcase-region (region-beginning) (region-end)) ;; 如果有选区，转换选区内的文本为大写
+    (upcase-char 1))) ;; 否则，大写当前字符
 
 (defun smart-downcase-char-or-word ()
   "智能小写当前字符或单词"
   (interactive)
-    (if (use-region-p)
-        (downcase-region (region-beginning) (region-end)) ;; 如果有选区，转换选区内的文本为小写
-      (progn
-        (downcase-region (point) (progn (forward-char 1) (point)))
-        (backward-char 1)))) ;; 否则，小写当前字符
+  (if (use-region-p)
+      (downcase-region (region-beginning) (region-end)) ;; 如果有选区，转换选区内的文本为小写
+    (progn
+      (downcase-region (point) (progn (forward-char 1) (point)))
+      (backward-char 1)))) ;; 否则，小写当前字符
+
+(defun copy-function-at-point ()
+  "复制当前函数内容到剪贴板"
+  (interactive)
+  (save-excursion
+    (mark-defun)
+    (kill-ring-save (region-beginning) (region-end))
+    (message "函数已复制到剪贴板")))
+
+;; Return the content of the function at point without text properties.
+;; This function marks the entire function definition at point, extracts the
+;; text content without any text properties, deactivates the mark, and returns
+;; the extracted content. It is designed to be used interactively or called
+;; from other Lisp code.
+(defun get-current-function-content ()
+  "Return the content of the function at point without text properties."
+  (interactive)
+  (save-excursion
+    (mark-defun)
+    (let ((content (buffer-substring-no-properties (region-beginning) (region-end))))
+      (deactivate-mark)  ; 取消标记
+      content)))
+
+(defun gptel-add-comment ()
+  "Add comments to the current function."
+  (interactive)
+  (let ((gptel-model 'deepseek-chat)
+        (lang (cond
+               ((eq major-mode 'go-ts-mode) "golang")
+               ((eq major-mode 'emacs-lisp-mode) "emacs")
+               ((eq major-mode 'org-mode) "org")
+               (t "markdown"))))
+    (gptel-request
+        (concat "Add appropriate comments to this function\n```" lang "\n"
+                (get-current-function-content)
+                "\n```")
+      :system
+      (list "Generate reasonable comments for the provided function. Return ONLY the comment text for this function without any additional explanation, or code block, or markdown formatting."
+            "Comment style should follow the conventions of the programming language. If the function has parameters, explain them as well.")
+      :callback
+      (lambda (resp info)
+        (if (stringp resp)
+            (let ((buf (plist-get info :buffer)))
+                (with-current-buffer buf
+                  (save-excursion
+                    (point)
+                    (insert resp))))
+          (message "Error(%s): did not receive a response from the LLM."
+                   (plist-get info :status)))))))
+
+(defvar gptel-lookup--history nil)
+
+(defun gptel-ask-from-minibuffer (prompt)
+  (interactive (list (read-string "Ask ChatGPT: " nil gptel-lookup--history)))
+  (when (string= prompt "") (user-error "A prompt is required."))
+  (gptel-request
+   prompt
+   :callback
+   (lambda (response info)
+     (if (not response)
+         (message "gptel-lookup failed with message: %s" (plist-get info :status))
+       (with-current-buffer (get-buffer-create "*gptel-lookup*")
+         (let ((inhibit-read-only t))
+           (erase-buffer)
+           (insert response))
+         (special-mode)
+         (display-buffer (current-buffer)
+                         `((display-buffer-in-side-window)
+                           (side . bottom)
+                           (window-height . ,#'fit-window-to-buffer))))))))

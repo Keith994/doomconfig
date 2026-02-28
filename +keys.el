@@ -101,7 +101,10 @@
        :desc "kill workspace" "d" #'+workspace/kill ;; M-SPC W d 删除工作区
        :desc "display workspaces" "i" #'+workspace/display ;; M-SPC W i 显示工作区列表
        :desc "next workspace" "w" #'+workspace/switch-to ;; M-SPC w w 切换到下一个工作区
-       ))
+       )
+      (:prefix "a"
+       :desc "open llm buffer" "RET" #'gptel
+       :desc ))
 
 
 ;; 快速删除一个单词或选中区域
@@ -256,6 +259,7 @@
   "M-SPC m" "mark and bookmark"
   )
 ;; emacs模式技巧
+;; C-M-h 快速标记整个函数
 ;; 查看按键绑定 C-h k <key>
 ;; C-M-<end> 跳转到函数末尾
 ;; C-M-<home> 跳转到函数开头
@@ -284,3 +288,6 @@
 ;; C-` ;; +popup/toggle 切换弹框buffer
 ;; C-M 键位适配
 ;; C-M-n 向下跳转符号
+;; (buffer-substring-no-properties (point-min) (point-max))   获取整个缓冲区的内容
+;; (save-excursion (mark-defun) (buffer-substring-no-properties (region-beginning) (region-end)) 获取当前函数的内容)
+;; (buffer-substring-no-properties (save-excursion (beginning-of-defun) (point)) (save-excursion (end-of-defun) (point)))

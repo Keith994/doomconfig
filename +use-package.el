@@ -153,7 +153,6 @@
 
 ;; Keycast
 (use-package keycast
-  :ensure t
   :defer t)
 
 ;; Enable visual-line-mode in compilation buffers
@@ -299,8 +298,9 @@
   (gptel-make-deepseek "DeepSeek"
     :stream t
     :key (gptel-api-key-from-environment "DEEPSEEK_API_KEY"))
-  (setq gptel-model 'deepseek-coder
-        gptel-backend (gptel-get-backend "deepseek-coder")))
+  (setq 
+        gptel-backend (gptel-get-backend "DeepSeek")
+        gptel-model 'deepseek-chat))
 
 ;; ============================================================================
 ;; Project Management

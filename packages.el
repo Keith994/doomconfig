@@ -4,22 +4,24 @@
 ;; ============================================================================
 ;; Disabled Packages
 ;; ============================================================================
-(disable-packages! solaire-mode
-                   osx-trash
-                   realgud
-                   realgud-trepan-ni
-                   ccls
-                   tide
-                   swiper
-                   forge
-                   code-review
-                   writegood-mode
-                   dired-x
-                   flymake-popon
-                   anaconda-mode
-                   company-anaconda
-                   lsp-python-ms
-                   pyimport)
+
+;; Disable unused packages that may conflict with Doom's configurations or are unnecessary
+(disable-packages! solaire-mode        ; Unused solarized theme mode
+                   osx-trash           ; Mac-specific trash handling (not needed on other OSes)
+                   realgud             ; RealGUD debugger (may conflict with built-in debugging)
+                   realgud-trepan-ni   ; Trepan-NI backend for RealGUD
+                   ccls                ; C/C++ LSP server (replaced by clangd in Doom)
+                   tide                ; TypeScript IDE (replaced by ts-ls)
+                   swiper              ; Swiper search (replaced by Doom's vertico/ivy)
+                   forge               ; Git forge integration (may overlap with magit)
+                   code-review         ; Code review tool (not always needed)
+                   writegood-mode      ; Writing style checker (optional)
+                   dired-x             ; Extra Dired features (Doom has its own dired config)
+                   flymake-popon       ; Flymake popon display (replaced by Doom's flycheck)
+                   anaconda-mode       ; Python mode (replaced by LSP)
+                   company-anaconda    ; Company backend for anaconda (unnecessary with LSP)
+                   lsp-python-ms       ; Microsoft Python LSP (replaced by pylsp)
+                   pyimport            ; Python import management (handled by other tools))
 
 ;; ============================================================================
 ;; UI & Appearance
