@@ -266,8 +266,8 @@
 
 ;; GPTel configuration
 (use-package gptel
-  :defer t
   :config
+  (setopt gptel-use-tools t)
   (defun gptel-api-key-from-environment (&optional var)
     "Return a lambda function that retrieves an API key from environment variables."
     (lambda ()
@@ -289,18 +289,64 @@
     :context t
     :sources nil
     :header (lambda () (when-let* ((key (gptel--get-api-key)))
-                          `(("Authorization" . ,(concat "Bearer " key)))))
+                         `(("Authorization" . ,(concat "Bearer " key)))))
     :models '(deepseek-coder
-                     :capabilities (tool)
-                     :context-window 128
-                     :input-cost 0.56
-                     :output-cost 1.68))
+              :capabilities (tool)
+              :context-window 128
+              :input-cost 0.56
+              :output-cost 1.68))
   (gptel-make-deepseek "DeepSeek"
     :stream t
     :key (gptel-api-key-from-environment "DEEPSEEK_API_KEY"))
   (setq 
-        gptel-backend (gptel-get-backend "DeepSeek")
-        gptel-model 'deepseek-chat))
+   gptel-backend (gptel-get-backend "DeepSeek")
+   gptel-model 'deepseek-chat))
+
+(use-package ragmacs
+  :after gptel
+  :config
+  (setq gptel-tools
+        (list ragmacs-manuals
+              ragmacs-symbol-manual-node
+              ragmacs-manual-node-contents
+              ragmacs-function-source
+              ragmacs-variable-source))
+  :init
+  (gptel-make-preset 'introspect
+    :pre (lambda () (require 'ragmacs))
+    :system
+    "You are pair programming with the user in Emacs and on Emacs.
+
+ Your job is to dive into Elisp code and understand the APIs and
+ structure of elisp libraries and Emacs.  Use the provided tools to do
+ so, but do not make duplicate tool calls for information already
+ available in the chat.
+
+ <tone>
+ 1. Be terse and to the point.  Speak directly.
+ 2. Explain your reasoning.
+ 3. Do NOT hedge or qualify.
+ 4. If you don't know, say you don't know.
+ 5. Do not offer unprompted advice or clarifications.
+ 6. Never apologize.
+ 7. Do NOT summarize your answers.
+ </tone>
+
+ <code_generation>
+ When generating code:
+ 1. Always check that functions or variables you use in your code exist.
+ 2. Also check their calling convention and function-arity before you use them.
+ 3. Write code that can be tested by evaluation, and offer to evaluate
+ code using the `elisp_eval` tool.
+ </code_generation>
+
+ <formatting>
+ 1. When referring to code symbols (variables, functions, tags etc) enclose them in markdown quotes.
+    Examples: `read_file`, `getResponse(url, callback)`
+    Example: `<details>...</details>`
+ 2. If you use LaTeX notation, enclose math in \( and \), or \[ and \] delimiters.
+ </formatting>"
+    :tools '("introspection")))
 
 ;; ============================================================================
 ;; Project Management

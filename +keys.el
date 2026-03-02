@@ -104,7 +104,14 @@
        )
       (:prefix "a"
        :desc "open llm buffer" "RET" #'gptel
-       :desc ))
+       :desc "send message" "s" #'gptel-send
+       :desc "quick explain" "e" #'gptel-quick
+       :desc "open menu" "m" #'gptel-menu
+       :desc "add file" "f" #'gptel-add-file
+       :desc "add comment at point" "c" #'gptel-add-comment
+       :desc "add buffer" "b" #'gptel-add
+       :desc "rewrite with response" "r" #'gptel-rewrite
+       :desc "one shot question" "a" #'gptel-ask-from-minibuffer))
 
 
 ;; 快速删除一个单词或选中区域

@@ -1,4 +1,4 @@
-;; -*- no-byte-compile: t; -*-
+;; packages.el -*- no-byte-compile: t; -*-
 ;;; $DOOMDIR/packages.el
 
 ;; ============================================================================
@@ -21,7 +21,8 @@
                    anaconda-mode       ; Python mode (replaced by LSP)
                    company-anaconda    ; Company backend for anaconda (unnecessary with LSP)
                    lsp-python-ms       ; Microsoft Python LSP (replaced by pylsp)
-                   pyimport            ; Python import management (handled by other tools))
+                   pyimport            ; Python import management (handled by other tools)
+                   )
 
 ;; ============================================================================
 ;; UI & Appearance
@@ -37,8 +38,11 @@
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
 (package! posframe)
+
+(package! ragmacs
+  :recipe (:host github :repo "positron-solutions/ragmacs" :files ("*.el")))
 ;; (package! aider :recipe (:host github :repo "tninja/aider.el"))
-;;(unpin! :completion :ui :editor :emacs :checkers :lang :tools)
+;;(unpin! :completnion :ui :editor :emacs :checkers :lang :tools)
 ;; (package! nerd-icons)
 ;; (package! colorful-mode)
 ;; (package! posframe)

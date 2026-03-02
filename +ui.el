@@ -63,4 +63,32 @@
  doom-modeline-major-mode-icon t
  doom-modeline-enable-word-count t
  doom-modeline-buffer-file-name-style 'file-name-with-project
- doom-modeline-minor-modes nil)
+ doom-modeline-minor-modes nil
+ )
+
+(defun my/modeline-minor-modes ()
+  "Return a short string of selected minor modes for the modeline."
+  (let (xs)
+    ;; 你想显示哪些 minor mode，就在这里加
+    (when (bound-and-true-p copilot-mode) (push "Copilot" xs))
+    (setq xs (nreverse xs))
+    (when xs
+      (propertize
+       (concat " " (string-join xs " ") )
+       'face '(:foreground "#a3be8c" :weight semi-bold)))))
+
+(with-eval-after-load 'doom-modeline
+  (doom-modeline-def-segment my-minor-modes
+    "Selected minor modes."
+    (my/modeline-minor-modes))
+
+  ;; 把 segment 插入到主 modeline（例如放在右侧靠前）
+  ;; 不同 Doom/doom-modeline 版本 layout 名称可能略有不同，
+  ;; 常见的是 'main 或 'project 等。
+  (doom-modeline-def-modeline 'my-main
+    '(bar workspace-name window-number modals matches buffer-info remote-host buffer-position parrot selection-info)
+    '(misc-info minor-modes my-minor-modes input-method buffer-encoding major-mode process vcs))
+
+  (defun my/setup-modeline ()
+    (doom-modeline-set-modeline 'my-main 'default))
+  (add-hook 'doom-modeline-mode-hook #'my/setup-modeline))
