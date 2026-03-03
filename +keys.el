@@ -36,6 +36,7 @@
       :desc "switch buffer" "B" #'switch-to-buffer
       :desc "dirvish" "d" #'dirvish
       :desc "ibuffer" "i" #'ibuffer
+      :desc "verterm" "/" #'+vterm/toggle
       (:prefix "s"
        :desc "consult ripgrep" "s" #'consult-buffer ;; M-SPC s s 在项目中搜索文本
        :desc "consult grep" "g" #'consult-ripgrep ;; M-SPC s g 使用grep搜索文本
@@ -58,7 +59,7 @@
       (:prefix "b"
        :desc "switch buffer" "b" #'switch-to-buffer ;; M-SPC b b 切换buffer
        :desc "previous buffer" "p" #'previous-buffer ;; M-SPC b p 上一个buffer
-       :desc "next buffer" "n" #'next-buffer ;; M-SPC bn n 下一个buffer
+       :desc "new buffer" "n" #'my-new-scratch-buffer ;; 新建一个buffer
        :desc "kill buffer" "k" #'kill-this-buffer ;; M-SPC b k 关闭当前buffer
        :desc "ibuffers" "i" #'ibuffer ;; M-SPC b i 列出所有buffer
        :desc "revert buffer" "r" #'revert-buffer ;; M-SPC b r 刷新当前buffer
@@ -111,7 +112,8 @@
        :desc "add comment at point" "c" #'gptel-add-comment
        :desc "add buffer" "b" #'gptel-add
        :desc "rewrite with response" "r" #'gptel-rewrite
-       :desc "one shot question" "a" #'gptel-ask-from-minibuffer))
+       :desc "one shot question" "a" #'gptel-ask-from-minibuffer
+       :desc "stop response" "S" #'gptel-abort))
 
 
 ;; 快速删除一个单词或选中区域
@@ -121,6 +123,21 @@
               (if mark-active
                   (kill-region (region-beginning) (region-end))
                 (backward-kill-word 1))))
+
+(with-eval-after-load 'vterm
+  (map! :map vterm-mode-map
+        :desc "toggle vterm" "M-SPC /" #'+vterm/toggle))
+
+(map! :mode gptel-mode
+      :desc "gptel send" "C-c C-c" #'gptel-send
+      :desc "gptel explain" "C-c C-e" #'gptel-quick
+      :desc "gptel rewrite" "C-c C-r" #'gptel-rewrite
+      :desc "gptel menu" "C-c C-m" #'gptel-menu
+      :desc "gptel open" "C-c C-o" #'gptel)
+
+;; (with-eval-after-load 'vertico
+;;   (map! :map vertico-map
+;;         :desc "enter directory" "RET" #'vertico-directory-enter))
 
 (map! :prefix "C-x"
       "k" 'kill-current-buffer     ;; C-x k 关闭当前buffer
@@ -135,6 +152,7 @@
         "M-a" #'lsp-execute-code-action
         "M-r" #'lsp-rename ;; M-r 重命名符号
         "M-k" #'lsp-ui-doc-glance ;; M-k 查看文档
+        "C-c C-k" #'+format/region-or-buffer ;; C-c C-k 格式化代码
         "M-?" #'lsp-find-references ;; M-? 查找引用
         "M-." #'lsp-find-definition ;; M-. 跳转定义
         "C-M-." #'lsp-find-type-definition
@@ -174,10 +192,11 @@
 ;; global key
 (map! "C-_" 'nil
       "M-_" 'nil
+      "M-;" #'my-comment-dwim
       "M-u" 'smart-upcase-char-or-word
       "M-l" 'smart-downcase-char-or-word
       "C-o" #'pop-global-mark ;; C-o 跳回上一个光标位置
-      "C-c C-k" #'+format/region-or-buffer ;; C-c C-k 格式化代码
+
       "C-z" #'undo-fu-only-undo ;; C-z 撤销
       "C-S-z" #'undo-fu-only-redo ;; C-S-z 重做
       "C-." #'repeat ;; C-. 重复执行上一个复杂命令

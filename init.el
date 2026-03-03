@@ -5,7 +5,7 @@
 
        :completion
        (corfu +icons +abbrev +orderless)  ; complete with cap(f), cape and a flying feather!
-       (vertico +icons)           ; the search engine of the future
+       (vertico +icons +childframe)           ; the search engine of the future
 
        :ui
        doom              ; what makes DOOM look the way it does
@@ -38,6 +38,9 @@
 
        :checkers
        (syntax +childframe +flymake)              ; tasing you for every semicolon you forget
+
+       :term
+       vterm             ; the best terminal emulation in Emacs
 
        :tools
        debugger          ; FIXME stepping through code, to help you add bugs

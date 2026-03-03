@@ -267,7 +267,7 @@
 ;; GPTel configuration
 (use-package gptel
   :config
-  (setopt gptel-use-tools t)
+  (setopt gptel-use-tools nil)
   (defun gptel-api-key-from-environment (&optional var)
     "Return a lambda function that retrieves an API key from environment variables."
     (lambda ()
@@ -391,6 +391,16 @@
                   (* 2 (plist-get info :font-height)))
                2)))))
 
+;; Display vertico in the child frame
+(use-package vertico-posframe
+  :functions posframe-poshandler-frame-center-near-bottom
+  :hook (vertico-mode . vertico-posframe-mode)
+  :init (setq vertico-posframe-poshandler
+              #'posframe-poshandler-frame-center-near-bottom
+              vertico-posframe-parameters
+              '((left-fringe  . 8)
+                (right-fringe . 8))))
+(use-package anki-editor)
 ;; (use-package! hydra
 ;;   :defines (consult-imenu-config posframe-border-width)
 ;;   :functions 't

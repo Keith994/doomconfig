@@ -41,6 +41,8 @@
 
 (package! ragmacs
   :recipe (:host github :repo "positron-solutions/ragmacs" :files ("*.el")))
+(package! anki-editor
+  :recipe (:host github :repo "anki-editor/anki-editor"))
 ;; (package! aider :recipe (:host github :repo "tninja/aider.el"))
 ;;(unpin! :completnion :ui :editor :emacs :checkers :lang :tools)
 ;; (package! nerd-icons)

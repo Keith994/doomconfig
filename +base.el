@@ -28,6 +28,7 @@
 ;; ============================================================================
 (setq org-directory "~/orgs/"
       tab-width 2
+      menu-bar-line-wrapping-menu t
       confirm-kill-emacs nil
       display-line-numbers t
       display-line-numbers-type 'relative

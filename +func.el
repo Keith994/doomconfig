@@ -200,3 +200,28 @@ If MULTI-LINE, make every path occupy a new line."
                          `((display-buffer-in-side-window)
                            (side . bottom)
                            (window-height . ,#'fit-window-to-buffer))))))))
+
+(defun my-comment-dwim ()
+  "Comment region if active, otherwise comment current line.
+If already commented, uncomment instead."
+  (interactive)
+  (if (use-region-p)
+      (comment-or-uncomment-region (region-beginning) (region-end))
+    (save-excursion
+      (let ((beg (line-beginning-position))
+            (end (line-end-position)))
+        (comment-or-uncomment-region beg end)))))
+
+(defun my-new-scratch-buffer ()
+  "Always create a new *scratch* buffer."
+  (interactive)
+  (let ((buffer-name "*scratch*")
+        (counter 1))
+    ;; 如果已存在 *scratch* buffer，则生成新名称
+    (while (get-buffer buffer-name)
+      (setq buffer-name (format "*scratch<%d>*" counter))
+      (setq counter (1+ counter)))
+    ;; 创建新buffer并切换到它
+    (switch-to-buffer (get-buffer-create buffer-name))
+    ;; 设置初始模式（可选）
+    (lisp-interaction-mode)))
