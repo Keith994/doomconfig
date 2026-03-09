@@ -26,7 +26,9 @@
 ;; ============================================================================
 ;; Core Settings
 ;; ============================================================================
-(setq org-directory "~/orgs/"
+(setq org-directory "~/org/"
+      org-roam-directory "~/org/roam"
+      org-roam-completion-everywhere t
       tab-width 2
       menu-bar-line-wrapping-menu t
       confirm-kill-emacs nil

@@ -225,3 +225,14 @@ If already commented, uncomment instead."
     (switch-to-buffer (get-buffer-create buffer-name))
     ;; 设置初始模式（可选）
     (lisp-interaction-mode)))
+
+(defun my/kill-ring-save ()
+  "Copy marked region or copy current line."
+  (interactive)
+  (if (use-region-p)
+      (progn
+        (kill-ring-save (region-beginning) (region-end))
+        (message "Copied region"))
+    (progn
+      (kill-ring-save (line-beginning-position) (line-end-position))
+      (message "Copied current line"))))
