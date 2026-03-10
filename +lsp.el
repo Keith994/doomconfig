@@ -107,7 +107,7 @@
   (add-hook! 'lsp-help-mode-hook (visual-line-mode 1))
   (setq lsp-log-io t
         lsp-diagnostics-provider :t
-        lsp-file-watch-threshold 20000
+        lsp-file-watch-threshold 5000
         lsp-headerline-breadcrumb-enable t
         lsp-diagnostics-provider :flymake
         lsp-headerline-breadcrumb-icons-enable nil

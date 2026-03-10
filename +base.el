@@ -50,9 +50,9 @@
 ;; Performance Optimizations
 ;; ============================================================================
 (setq inhibit-compacting-font-caches t
-      read-process-output-max (* 16 1024 1024)
-      gc-cons-threshold (* 500 1024 1024)  ; 500MB
-      gc-cons-percentage 0.6)
+      read-process-output-max (* 16 1024 1024))
+      ; gc-cons-threshold (* 500 1024 1024)  ; 500MB
+      ; gc-cons-percentage 0.6)
 
 (with-eval-after-load 'gcmh
   (setq gcmh-idle-delay 60          ; 更频繁的GC

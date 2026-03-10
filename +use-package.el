@@ -264,9 +264,15 @@
 ;; AI & Coding Assistance
 ;; ============================================================================
 
+;; You can limit the conversation context to an Org heading with the command gptel-org-set-topic.
 ;; GPTel configuration
 (use-package gptel
   :config
+  (setq gptel-org-branching-context t) ;; each org heading level 1 is a new topic session
+  (setf (alist-get 'org-mode gptel-prompt-prefix-alist) "** ") ;; prefix for user messages in org-mode
+  (setf (alist-get 'org-mode gptel-response-prefix-alist) "*** @assistant\n") ;; prefix for response in org-mode
+  (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll) ;; scroll the window automatically as the response is inserted
+  ;; (add-hook 'gptel-post-response-functions 'gptel-end-of-response) ;; move the cursor to the next prompt after the response is inserted
   (setopt gptel-use-tools nil)
   (defun gptel-api-key-from-environment (&optional var)
     "Return a lambda function that retrieves an API key from environment variables."
@@ -300,7 +306,16 @@
     :key (gptel-api-key-from-environment "DEEPSEEK_API_KEY"))
   (setq 
    gptel-backend (gptel-get-backend "DeepSeek")
-   gptel-model 'deepseek-chat))
+   gptel-model 'deepseek-chat)
+  (gptel-make-preset 'proofreader ;; set preset prompt
+    :description "Preset for proofreading tasks"
+    :backend "DeepSeek"
+    :model 'deepseek-chat
+    :tools '("read_buffer" "spell_check" "grammar_check")
+    :use-context 'system                                ;sets gptel-use-context
+    ;; :context '("./.grammar_rules.md" "./jargonfile.md") ;sets gptel-context
+    :temperature 0.2)                                   ;sets gptel-temperature
+  )
 
 (use-package ragmacs
   :after gptel

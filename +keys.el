@@ -7,7 +7,6 @@
 ;;   )
 (add-hook! 'doom-after-init-hook
   (setq doom-leader-alt-key "")
-
   ;; 批量禁用不需要的 C-x 前缀绑定
   (dolist (key '("+" "*" "#" "$" "'" "\\" "]" "[" "." "f" ";" "^" "`"
                  "B" "C-M-+" "C-M--" "C-M-0" "C-M-=" "z" "X" "w" "n"
@@ -17,10 +16,8 @@
   (dolist (key '("l" "e" "p" "C-b" "i" "M-g"))
     (map! :prefix "C-c " key 'nil))
 
-  (with-eval-after-load 'persp
-    (define-key persp-mode-map (kbd "C-c w") nil))
-  (with-eval-after-load 'projectile
-    (define-key projectile-mode-map (kbd "C-c p") nil))
+  (map! :map persp-mode-map "C-c w" nil)
+  (map! :map projectile-mode-map "C-c p" nil)
 
   ;; M-g
   (map! :map  goto-map
@@ -126,6 +123,7 @@
 
   ;; global key
   (map! "M-w" #'my/kill-ring-save
+        "M-SPC" #'mark-current-line
         "C-_" 'nil
         "M-_" 'nil
         "M-;" #'my-comment-dwim
@@ -139,7 +137,6 @@
         "C-r" #'consult-recent-file ;; 最近打开的文件
         "C-s" #'consult-line ;; 搜索当前buffer
         "C-M-s" #'sp/wrap-with-pair ;; 快速添加括号对
-        "C-c SPC" #'find-file;; 搜索当前目录的文件
         "C--" #'er/contract-region      ;; C-x - 收缩选择区域
         "C-=" #'er/expand-region ;; C-= 扩大选择区域
         "C-u" #'delete-to-beginning-of-line ;; C-u 删除到行首
@@ -159,45 +156,6 @@
         "M-4" #'+workspace/switch-to-3
         "M-5" #'+workspace/switch-to-4
         )
-
-  (with-eval-after-load 'evil
-    (evil-mode -1)
-    (map! :map evil-normal-state-map
-          "C-n" #'next-line ;; C-n 向下
-          "C-p" #'previous-line ;; C-p 向上
-          "C-e" #'end-of-line ;; C-e 行尾
-          "C-f" #'forward-char ;; C-f 向右
-          "C-b" #'backward-char ;; C-b 向左
-          "q" 'nil ;; 禁用q键
-          "Q" #'evil-record-macro ;; Q 录制宏
-          "/" #'consult-line
-          )
-    (map! :map evil-insert-state-map
-          "C-n" #'next-line ;; C-n 向下
-          "C-p" #'previous-line ;; C-p 向上
-          "C-e" #'doom/forward-to-last-non-comment-or-eol ;; C-e 行尾
-          "C-d" #'delete-char ;; C-d 删除一个字符
-          "C-k" #'kill-line ;; C-k 删除到行尾
-          "C-_" 'nil
-          "M-_" 'nil
-          "C-c C-k" #'+format/region-or-buffer ;; C-c C-k 格式化代码
-          "C-z" #'undo-fu-only-undo ;; C-z 撤销
-          "C-S-z" #'undo-fu-only-redo ;; C-S-z 重做
-          "C-." #'repeat ;; C-. 重复执行上一个复杂命令
-          n     "C-r" #'consult-recent-file ;; 最近打开的文件
-          "C-s" #'consult-line ;; 搜索当前buffer
-          "C-M-s" #'sp/wrap-with-pair ;; 快速添加括号对
-          "C-c SPC" #'find-file;; 搜索当前目录的文件
-          "C--" #'er/contract-region      ;; C-x - 收缩选择区域
-          "C-u" #'delete-to-beginning-of-line ;; C-u 删除到行首
-          "C-v" #'evil-scroll-page-down ;; C-v 向下翻页
-          "M-vp" #'evil-scroll-page-up ;; M-v 向上
-          "C-'" #'avy-goto-char-2 ;; C-RET 快速跳转到单词
-          )
-    (map! :map  corfu-mode-map
-          :i "C-SPC" 'set-mark-command ;; C-SPC 设置标记开始选择
-          )
-    )
 
   (map! "C-x S" #'doom/sudo-save-buffer) ;; C-x S 以管理员权限保存文件
 
@@ -223,6 +181,7 @@
          :desc "search and jump file" "f" #'+lookup/file ;; C-c s f 跳转到文件
          )
         (:prefix "m"
+         :desc "mark current line" "l" #'mark-current-line
          :desc "consult mark" "m" #'consult-mark ;; C-c m m 跳转到标记
          :desc "consult global mark" "g" #'consult-global-mark ;; C-c m g 全局标记
          :desc "consult bookmark" "b" #'consult-bookmark ;; C-c m b 书签
@@ -238,14 +197,15 @@
          )
         (:prefix "b"
          :desc "switch buffer" "b" #'switch-to-buffer ;; C-c b b 切换buffer
-         :desc "previous buffer" "p" #'previous-buffer ;; C-c b p 上一个buffer
+         :desc "project buffer" "p" #'projectile-switch-to-buffer
          :desc "new buffer" "n" #'my-new-scratch-buffer ;; 新建一个buffer
          :desc "kill buffer" "k" #'kill-this-buffer ;; C-c b k 关闭当前buffer
          :desc "ibuffers" "i" #'ibuffer ;; C-c b i 列出所有buffer
          :desc "revert buffer" "r" #'revert-buffer ;; C-c b r 刷新当前buffer
          :desc "kill other buffers" "c" #'doom/kill-other-buffers ;; C-c b o 关闭其他buffer
          :desc "open project scratch buffer" "x" #'doom/open-project-scratch-buffer ;; C-c b x 打开scratch buffer
-         :desc "open scratch" "o" #'doom/open-scratch-buffer ;; C-c b s 打开scratch buffer
+         :desc "open scratch" "o" #'doom/toggle-scratch-buffer
+         :desc "rename buffer" "R" #'rename-buffer
          )
         (:prefix "g"
          :desc "magit status" "g" #'magit-status ;; C-c g g 打开magit状态
@@ -288,8 +248,9 @@
          :desc "display workspaces" "i" #'+workspace/display ;; C-c W i 显示工作区列表
          :desc "next workspace" "w" #'+workspace/switch-to ;; C-c w w 切换到下一个工作区
          )
-        (:prefix "a"
+        (:prefix "a" ;; make menu selection persistent across this Emacs session by pressing C-x C-s:
          :desc "open llm buffer" "RET" #'gptel
+         :desc "set org topic" "t" #'gptel-org-set-topic ;; C-c a t 设置org topic
          :desc "send message" "s" #'gptel-send
          :desc "quick explain" "e" #'gptel-quick
          :desc "open menu" "m" #'gptel-menu
@@ -298,6 +259,7 @@
          :desc "add buffer" "b" #'gptel-add
          :desc "rewrite with response" "r" #'gptel-rewrite
          :desc "one shot question" "a" #'gptel-ask-from-minibuffer
+         :desc "move to next prompt" "C-e" #'gptel-end-of-response
          :desc "stop response" "S" #'gptel-abort)
         (:prefix "n"
          :desc "browse notes" "b" #'+default/browse-notes ;; C-c n b 浏览笔记
@@ -312,6 +274,11 @@
          :desc "insert emoji" "e" #'emoji-search
          :desc "insert char" "c" #'insert-char
          :desc "insert unicode" "y" #'+default/yank-pop)
+        (:prefix "t"
+         :desc "toggle flymake" "f" #'flymake-mode
+         :desc "toggle display-line-numbers-mode" "l" #'display-line-numbers-mode
+         :desc "toggle wrap" "w" #'toggle-truncate-lines
+         :desc "toggle indent guide" "i" #'highlight-indent-mode)
         )
 
 
@@ -343,6 +310,47 @@
     "C-c i" "insert"
     )
   )
+
+(modulep! :editor evil
+          (with-eval-after-load 'evil
+            (evil-mode -1)
+            (map! :map evil-normal-state-map
+                  "C-n" #'next-line ;; C-n 向下
+                  "C-p" #'previous-line ;; C-p 向上
+                  "C-e" #'end-of-line ;; C-e 行尾
+                  "C-f" #'forward-char ;; C-f 向右
+                  "C-b" #'backward-char ;; C-b 向左
+                  "q" 'nil ;; 禁用q键
+                  "Q" #'evil-record-macro ;; Q 录制宏
+                  "/" #'consult-line
+                  )
+            (map! :map evil-insert-state-map
+                  "C-n" #'next-line ;; C-n 向下
+                  "C-p" #'previous-line ;; C-p 向上
+                  "C-e" #'doom/forward-to-last-non-comment-or-eol ;; C-e 行尾
+                  "C-d" #'delete-char ;; C-d 删除一个字符
+                  "C-k" #'kill-line ;; C-k 删除到行尾
+                  "C-_" 'nil
+                  "M-_" 'nil
+                  "C-c C-k" #'+format/region-or-buffer ;; C-c C-k 格式化代码
+                  "C-z" #'undo-fu-only-undo ;; C-z 撤销
+                  "C-S-z" #'undo-fu-only-redo ;; C-S-z 重做
+                  "C-." #'repeat ;; C-. 重复执行上一个复杂命令
+                  n     "C-r" #'consult-recent-file ;; 最近打开的文件
+                  "C-s" #'consult-line ;; 搜索当前buffer
+                  "C-M-s" #'sp/wrap-with-pair ;; 快速添加括号对
+                  "C-c SPC" #'find-file;; 搜索当前目录的文件
+                  "C--" #'er/contract-region      ;; C-x - 收缩选择区域
+                  "C-u" #'delete-to-beginning-of-line ;; C-u 删除到行首
+                  "C-v" #'evil-scroll-page-down ;; C-v 向下翻页
+                  "M-vp" #'evil-scroll-page-up ;; M-v 向上
+                  "C-'" #'avy-goto-char-2 ;; C-RET 快速跳转到单词
+                  )
+            (map! :map  corfu-mode-map
+                  :i "C-SPC" 'set-mark-command ;; C-SPC 设置标记开始选择
+                  )
+            )
+          )
 
 ;; emacs模式技巧
 ;; M-% replace regexp

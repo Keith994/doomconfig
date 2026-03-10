@@ -236,3 +236,10 @@ If already commented, uncomment instead."
     (progn
       (kill-ring-save (line-beginning-position) (line-end-position))
       (message "Copied current line"))))
+
+(defun mark-current-line ()
+  "Mark the current line."
+  (interactive)
+  (beginning-of-line)
+  (set-mark-command nil)
+  (end-of-line))
