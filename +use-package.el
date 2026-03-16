@@ -307,13 +307,25 @@
   (setq 
    gptel-backend (gptel-get-backend "DeepSeek")
    gptel-model 'deepseek-chat)
-  (gptel-make-preset 'proofreader ;; set preset prompt
-    :description "Preset for proofreading tasks"
+  (gptel-make-preset 'dictionary
+    :description "Preset for dicionary tasks"
     :backend "DeepSeek"
     :model 'deepseek-chat
-    :tools '("read_buffer" "spell_check" "grammar_check")
-    :use-context 'system                                ;sets gptel-use-context
-    ;; :context '("./.grammar_rules.md" "./jargonfile.md") ;sets gptel-context
+    :tools 'nil
+    :system
+    "You act as an English Dictionary.
+
+When I send a message in Chinese, translate it into English;
+if it's a word, include phonetic transcription. When I send a message in English, translate it into Chinese;
+if it's a word, first explain it in English and the input word include phonetic transcription.
+Respond concisely.
+example:
+** technique
+*** @assistant
+   technique /tekˈniːk/ n. 技巧，技术，方法
+** 归一化
+*** @assistant
+   Normalization  /ˌnɔːrməlaɪˈzeɪʃən/"
     :temperature 0.2)                                   ;sets gptel-temperature
   )
 

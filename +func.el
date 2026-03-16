@@ -212,19 +212,35 @@ If already commented, uncomment instead."
             (end (line-end-position)))
         (comment-or-uncomment-region beg end)))))
 
-(defun my-new-scratch-buffer ()
+(defun my/new-scratch-buffer ()
   "Always create a new *scratch* buffer."
   (interactive)
   (let ((buffer-name "*scratch*")
         (counter 1))
     ;; 如果已存在 *scratch* buffer，则生成新名称
     (while (get-buffer buffer-name)
-      (setq buffer-name (format "*scratch<%d>*" counter))
+      (setq buffer-name (format "*scratch-%d*" counter))
       (setq counter (1+ counter)))
     ;; 创建新buffer并切换到它
     (switch-to-buffer (get-buffer-create buffer-name))
     ;; 设置初始模式（可选）
-    (lisp-interaction-mode)))
+    (org-mode)))
+
+(defun my/switch-scratch-buffer ()
+  "Switch between multiple scratch buffers."
+  (interactive)
+  (let* ((scratch-buffers (seq-filter (lambda (buf)
+                                        (string-match-p "\\*scratch.*\\*" (buffer-name buf)))
+                                      (buffer-list)))
+         (buffer-names (mapcar #'buffer-name scratch-buffers))
+         (selected (completing-read "Switch to scratch buffer: " buffer-names nil t)))
+    (when selected
+      (switch-to-buffer selected))))
+
+(defun my/switch-to-last-open-buffer ()
+  "Switch to the most recently visited buffer other than the current one."
+  (interactive)
+  (switch-to-buffer (other-buffer)))
 
 (defun my/kill-ring-save ()
   "Copy marked region or copy current line."
@@ -243,3 +259,23 @@ If already commented, uncomment instead."
   (beginning-of-line)
   (set-mark-command nil)
   (end-of-line))
+
+(defun my/python-run-current-script ()
+  "Run the current Python script in a shell buffer."
+  (interactive)
+  (let ((file-name (buffer-file-name)))
+    (if file-name
+        (progn
+          (save-buffer)
+          (let ((buffer (get-buffer-create "*Python Output*")))
+            (with-current-buffer buffer
+              (erase-buffer)
+              (insert (format "Running: python %s\n\n" file-name))
+              (let ((process (start-process "python-run" buffer "python" file-name)))
+                (set-process-sentinel process
+                  (lambda (proc event)
+                    (when (string-match-p "finished" event)
+                      (with-current-buffer buffer
+                        (insert "\nProcess finished."))))))))
+          (display-buffer "*Python Output*"))
+      (message "Buffer is not visiting a file."))))

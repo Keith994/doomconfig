@@ -54,7 +54,7 @@
 
   (map! :mode gptel-mode
         :desc "gptel send" "C-c C-c" #'gptel-send
-        :desc "gptel explain" "C-c C-e" #'gptel-quick
+        :desc "gptel explain" "C-c C-e" #'gptel-end-of-response
         :desc "gptel rewrite" "C-c C-r" #'gptel-rewrite
         :desc "gptel menu" "C-c C-m" #'gptel-menu
         :desc "gptel open" "C-c C-o" #'gptel)
@@ -164,11 +164,15 @@
         :desc "beautify json" "C-c C-k" #'json-mode-beautify
         :desc "nullify sexp" "C-c C-f" #'json-nullify-sexp
         :desc "increase number at point" "C-c C-i" #'json-increment-number-at-point)
+  (map! :map python-ts-mode-map
+        :desc "run script" "C-c C-b" #'my/python-run-current-script
+        :desc "run project" "C-c C-c" #'(lambda () (interactive) (compile "uv run main.py")))
 
 
   (map! :prefix "C-c" ;; C-c 开头的快捷键
         :desc "fold toggle" "<TAB>" #'+fold/toggle
         :desc "find file" "SPC" #'consult-find-file-or-projectile ;; C-c C-c 打开文件
+        :desc "find file" "C-f" #'consult-find-file-or-projectile ;; C-c C-c 打开文件
         :desc "dirvish" "d" #'dirvish
         :desc "verterm" "/" #'+vterm/toggle
         :desc "query replace" "%" #'query-replace-regexp
@@ -198,7 +202,9 @@
         (:prefix "b"
          :desc "switch buffer" "b" #'switch-to-buffer ;; C-c b b 切换buffer
          :desc "project buffer" "p" #'projectile-switch-to-buffer
-         :desc "new buffer" "n" #'my-new-scratch-buffer ;; 新建一个buffer
+         :desc "new buffer" "n" #'my/new-scratch-buffer ;; 新建一个buffer
+         :desc "scratchs buffers" "s" #'my/switch-scratch-buffer
+         :desc "last open buffer" "l" #'my/switch-to-last-open-buffer
          :desc "kill buffer" "k" #'kill-this-buffer ;; C-c b k 关闭当前buffer
          :desc "ibuffers" "i" #'ibuffer ;; C-c b i 列出所有buffer
          :desc "revert buffer" "r" #'revert-buffer ;; C-c b r 刷新当前buffer
@@ -250,6 +256,7 @@
          )
         (:prefix "a" ;; make menu selection persistent across this Emacs session by pressing C-x C-s:
          :desc "open llm buffer" "RET" #'gptel
+         :desc "read preset" "p" #'gptel--read-apply-preset
          :desc "set org topic" "t" #'gptel-org-set-topic ;; C-c a t 设置org topic
          :desc "send message" "s" #'gptel-send
          :desc "quick explain" "e" #'gptel-quick
@@ -308,6 +315,7 @@
     "C-c @" "outlines"
     "C-c n" "notes"
     "C-c i" "insert"
+    "C-c t" "toggle"
     )
   )
 
