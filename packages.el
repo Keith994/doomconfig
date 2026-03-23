@@ -41,14 +41,13 @@
 
 (package! ragmacs
   :recipe (:host github :repo "positron-solutions/ragmacs" :files ("*.el")))
-(package! anki-editor
-  :recipe (:host github :repo "anki-editor/anki-editor"))
-(package! jupyter)
-(package! ein)
+;; (package! anki-editor
+;;   :recipe (:host github :repo "anki-editor/anki-editor"))
+;; (package! jupyter)
+;; (package! ein)
 ;; (package! aider :recipe (:host github :repo "tninja/aider.el"))
 ;;(unpin! :completnion :ui :editor :emacs :checkers :lang :tools)
 ;; (package! nerd-icons)
 ;; (package! colorful-mode)
-;; (package! posframe)
 ;; (package! hydra)
 ;; (package! pretty-hydra)

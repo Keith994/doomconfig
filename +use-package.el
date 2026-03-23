@@ -9,7 +9,7 @@
   :custom
   (corfu-auto-delay 0.2)
   (corfu-auto-prefix 2)
-  (corfu-preselect 'prompt)          ;; 不预选任何候选项
+  (corfu-preselect 'first)
   (corfu-quit-no-match 'separator)
   :bind
   (:map corfu-map
@@ -428,6 +428,7 @@ example:
               '((left-fringe  . 8)
                 (right-fringe . 8))))
 (use-package anki-editor)
+
 ;; (use-package! hydra
 ;;   :defines (consult-imenu-config posframe-border-width)
 ;;   :functions 't

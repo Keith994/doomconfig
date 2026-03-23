@@ -12,11 +12,14 @@
 ;; 禁用 BOM
 (setq utf-8-with-signature-coding-system 'utf-8)
 
-(setq tab-width 4
+(setq tab-width 2
       mark-ring-max 128
-      global-mark-ring-max 128)
+      global-mark-ring-max 128
+      which-key-idle-delay 0.2
+      which-key-idle-secondary-delay 0.1)
 (blink-cursor-mode 1)
 
+(setq lsp-pyright-langserver-command "basedpyright")
 ;; ============================================================================
 ;; User Information
 ;; ============================================================================
@@ -51,8 +54,8 @@
 ;; ============================================================================
 (setq inhibit-compacting-font-caches t
       read-process-output-max (* 16 1024 1024))
-      ; gc-cons-threshold (* 500 1024 1024)  ; 500MB
-      ; gc-cons-percentage 0.6)
+                                        ; gc-cons-threshold (* 500 1024 1024)  ; 500MB
+                                        ; gc-cons-percentage 0.6)
 
 (with-eval-after-load 'gcmh
   (setq gcmh-idle-delay 60          ; 更频繁的GC
@@ -94,3 +97,13 @@
 ;; ============================================================================
 (when (file-exists-p custom-file)
   (message "Custom file detected. Use config.el and +ui.el for customizations instead."))
+
+(set-formatter! 'isort :modes '(python-ts-mode) "isort -q -")
+(set-formatter! 'black :modes '(python-ts-mode) "black -q -")
+(set-formatter! 'html-tidy "tidy -q -indent" :modes '(html-mode web-mode))
+(set-formatter! 'gofumpt :modes '(go-ts-mode go-mode) "gofumpt -w -")
+(setq python-shell-interpreter "python3")
+
+(setq shell-file-name (executable-find "bash"))
+(setq-default vterm-shell "/bin/fish")
+(setq-default explicit-shell-file-name "/bin/fish")

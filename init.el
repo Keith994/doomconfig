@@ -68,7 +68,6 @@
        (org +roam +dragndrop +noter +pandoc +pomodoro +present +passwords)       ; organize your plain life in plain text
        graphviz          ; diagrams for confusing yourself even more
        (python +lsp +pyright +tree-sitter +uv)                                                ; beautiful is better than ugly
-       (rust +lsp)       ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        (rust +lsp +tree-sitter)                                                         ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        (yaml +lsp +tree-sitter)                                                           ; JSON, but readable
 

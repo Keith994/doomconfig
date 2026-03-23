@@ -1,19 +1,19 @@
 ;;; +func.el -*- lexical-binding: t; -*-
 
-(defun delete-to-beginning-of-line ()
+(defun my/delete-to-beginning-of-line ()
   "Delete from point to the beginning of the line."
   (interactive)
   (delete-region (point) (line-beginning-position)))
 
-(defun consult-find-file-or-projectile ()
+(defun my/consult-find-file-or-projectile ()
   "在projectile项目中查找文件,否则使用consult-find-file"
   (interactive)
   (if (projectile-project-p)
       (projectile-find-file)
     (consult-find)))
 
-(defun sp/wrap-with-pair ()
-  "使用sp-wrap-round等函数添加pair, 读取终端的字符决定使用哪个"
+(defun my/sp-wrap-with-pair ()
+  "Use functions like sp-wrap-round to add pairs, read characters from the terminal to decide which one to use."
   (interactive)
   (let ((key (read-key "Enter a pair character: ")))
     (cond
@@ -22,7 +22,7 @@
      )))
 
 ;;;###autoload
-(defun async-shell-command-no-window (command)
+(defun my/async-shell-command-no-window (command)
   "Requisite Documentation"
   (interactive)
   (let
@@ -35,18 +35,18 @@
      command nil nil)))
 
 ;;;###autoload
-(defadvice async-shell-command-no-window (around auto-confirm compile activate)
+(defadvice my/async-shell-command-no-window (around auto-confirm compile activate)
   (cl-letf (((symbol-function 'yes-or-no-p) (lambda (&rest args) t))
             ((symbol-function 'y-or-n-p) (lambda (&rest args) t)))
     ad-do-it))
 
 ;;;###autoload
-(defun display-which-function ()
+(defun my/display-which-function ()
   (interactive)
   (message (which-function)))
 
 ;;;###autoload
-(defun display-which-path ()
+(defun my/display-which-path ()
   "Display and copy the current file path starting from home directory."
   (interactive)
   (let* ((full-path (buffer-file-name))
@@ -57,18 +57,7 @@
     (message relative-path)
     (kill-new relative-path)))
 
-;;;###autoload
-(defun dirvish-copy-file-relative-path (&optional multi-line)
-  "Copy filepath of marked files.
-If MULTI-LINE, make every path occupy a new line."
-  (interactive "P")
-  (let* ((files (mapcar (lambda (file)
-                          (file-relative-name (file-local-name file)))
-                        (dired-get-marked-files)))
-         (names (mapconcat #'concat files (if multi-line "\n" " "))))
-    (dirvish--kill-and-echo (if multi-line (concat "\n" names) names))))
-
-(defun +my/smart-close-window-enhanced ()
+(defun my/smart-close-window-enhanced ()
   "Smart window/buffer management:
    - Multiple windows: close current window, keep buffer
    - Single window: kill buffer, switch to another buffer
@@ -79,26 +68,18 @@ If MULTI-LINE, make every path occupy a new line."
     
     (if (> window-count 1)
         ;; Multiple windows: close window
-        (delete-window)
+        (progn
+          (kill-current-buffer)
+          (delete-window))
       
       ;; Single window: manage buffer
       (when (buffer-modified-p current-buffer)
         (when (y-or-n-p (format "Save buffer %s? " (buffer-name current-buffer)))
           (save-buffer)))
-      
-      (kill-buffer current-buffer)
-      
-      ;; Switch to another buffer or create new one
-      (let ((other-buffers (seq-filter (lambda (buf)
-                                         (and (not (eq buf current-buffer))
-                                              (not (string-prefix-p " " (buffer-name buf)))))
-                                       (buffer-list))))
-        (if other-buffers
-            (switch-to-buffer (car other-buffers))
-          (switch-to-buffer (generate-new-buffer "*scratch*")))))))
 
+      (kill-current-buffer))))
 ;;;###autoload
-(defun smart-mark-or-expand-region ()
+(defun my/smart-mark-or-expand-region ()
   "智能标记/扩展选区"
   (interactive)
   (if (region-active-p)
@@ -115,14 +96,14 @@ If MULTI-LINE, make every path occupy a new line."
     (set-mark-command nil)
     (message "标记已设置")))
 
-(defun smart-upcase-char-or-word ()
+(defun  my/smart-upcase-char-or-word ()
   "智能大写当前字符或单词"
   (interactive)
   (if (use-region-p)
       (upcase-region (region-beginning) (region-end)) ;; 如果有选区，转换选区内的文本为大写
     (upcase-char 1))) ;; 否则，大写当前字符
 
-(defun smart-downcase-char-or-word ()
+(defun my/smart-downcase-char-or-word ()
   "智能小写当前字符或单词"
   (interactive)
   (if (use-region-p)
@@ -131,7 +112,7 @@ If MULTI-LINE, make every path occupy a new line."
       (downcase-region (point) (progn (forward-char 1) (point)))
       (backward-char 1)))) ;; 否则，小写当前字符
 
-(defun copy-function-at-point ()
+(defun my/copy-function-at-point ()
   "复制当前函数内容到剪贴板"
   (interactive)
   (save-excursion
@@ -144,7 +125,7 @@ If MULTI-LINE, make every path occupy a new line."
 ;; text content without any text properties, deactivates the mark, and returns
 ;; the extracted content. It is designed to be used interactively or called
 ;; from other Lisp code.
-(defun get-current-function-content ()
+(defun my/get-current-function-content ()
   "Return the content of the function at point without text properties."
   (interactive)
   (save-excursion
@@ -164,7 +145,7 @@ If MULTI-LINE, make every path occupy a new line."
                (t "markdown"))))
     (gptel-request
         (concat "Add appropriate comments to this function\n```" lang "\n"
-                (get-current-function-content)
+                (my/get-current-function-content)
                 "\n```")
       :system
       (list "Generate reasonable comments for the provided function. Return ONLY the comment text for this function without any additional explanation, or code block, or markdown formatting."
@@ -173,35 +154,35 @@ If MULTI-LINE, make every path occupy a new line."
       (lambda (resp info)
         (if (stringp resp)
             (let ((buf (plist-get info :buffer)))
-                (with-current-buffer buf
-                  (save-excursion
-                    (point)
-                    (insert resp))))
+              (with-current-buffer buf
+                (save-excursion
+                  (point)
+                  (insert resp))))
           (message "Error(%s): did not receive a response from the LLM."
                    (plist-get info :status)))))))
 
 (defvar gptel-lookup--history nil)
 
-(defun gptel-ask-from-minibuffer (prompt)
+(defun my/gptel-ask-from-minibuffer (prompt)
   (interactive (list (read-string "Ask ChatGPT: " nil gptel-lookup--history)))
   (when (string= prompt "") (user-error "A prompt is required."))
   (gptel-request
-   prompt
-   :callback
-   (lambda (response info)
-     (if (not response)
-         (message "gptel-lookup failed with message: %s" (plist-get info :status))
-       (with-current-buffer (get-buffer-create "*gptel-lookup*")
-         (let ((inhibit-read-only t))
-           (erase-buffer)
-           (insert response))
-         (special-mode)
-         (display-buffer (current-buffer)
-                         `((display-buffer-in-side-window)
-                           (side . bottom)
-                           (window-height . ,#'fit-window-to-buffer))))))))
+      prompt
+    :callback
+    (lambda (response info)
+      (if (not response)
+          (message "gptel-lookup failed with message: %s" (plist-get info :status))
+        (with-current-buffer (get-buffer-create "*gptel-lookup*")
+          (let ((inhibit-read-only t))
+            (erase-buffer)
+            (insert response))
+          (special-mode)
+          (display-buffer (current-buffer)
+                          `((display-buffer-in-side-window)
+                            (side . bottom)
+                            (window-height . ,#'fit-window-to-buffer))))))))
 
-(defun my-comment-dwim ()
+(defun my/comment-dwim ()
   "Comment region if active, otherwise comment current line.
 If already commented, uncomment instead."
   (interactive)
@@ -253,7 +234,7 @@ If already commented, uncomment instead."
       (kill-ring-save (line-beginning-position) (line-end-position))
       (message "Copied current line"))))
 
-(defun mark-current-line ()
+(defun my/mark-current-line ()
   "Mark the current line."
   (interactive)
   (beginning-of-line)
@@ -273,9 +254,9 @@ If already commented, uncomment instead."
               (insert (format "Running: python %s\n\n" file-name))
               (let ((process (start-process "python-run" buffer "python" file-name)))
                 (set-process-sentinel process
-                  (lambda (proc event)
-                    (when (string-match-p "finished" event)
-                      (with-current-buffer buffer
-                        (insert "\nProcess finished."))))))))
+                                      (lambda (proc event)
+                                        (when (string-match-p "finished" event)
+                                          (with-current-buffer buffer
+                                            (insert "\nProcess finished."))))))))
           (display-buffer "*Python Output*"))
       (message "Buffer is not visiting a file."))))
