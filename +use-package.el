@@ -6,16 +6,16 @@
 
 ;; Corfu Completion
 (use-package corfu
-  :custom
-  (corfu-auto-delay 0.2)
-  (corfu-auto-prefix 2)
-  (corfu-preselect 'first)
-  (corfu-quit-no-match 'separator)
-  :bind
-  (:map corfu-map
-        ("RET" . nil))
+  :bind (:map corfu-map
+              ("RET" . nil)
+              ("TAB" . 'corfu-insert)
+              ("<tab>" . 'corfu-insert))
   :config
-  ;; 全局启用 corfu
+  (setq corfu-auto-delay 0.2)
+  (setq corfu-auto-prefix 2)
+  (setq corfu-quit-no-match 'separator)
+  (setq corfu-preselect 'first)
+  ;; 全局启用
   (global-corfu-mode 1))
 
 ;; Multiple Cursors
@@ -189,8 +189,16 @@
                             (go-package-name current-dir)))
             (save-buffer)))))))
 
+(with-eval-after-load 'lsp-java
+  (setq +java-project-package-roots (list ".git" 1)))
+
 ;; Java language utilities
-(with-eval-after-load 'java-ts-mode
+(add-hook! 'java-ts-mode-hook
+  (require 'lsp-java-boot)
+  ;; to enable the lenses
+  (add-hook! 'lsp-mode-hook #'lsp-lens-mode)
+  (add-hook! 'lsp-mode-hook #'lsp-booster-minor-mode)
+  (add-hook! 'java-mode-hook #'lsp-java-boot-lens-mode)
   (defun +java/copy-java-class-path ()
     "Copy the fully qualified Java class name to clipboard."
     (interactive)
@@ -427,7 +435,8 @@ example:
               vertico-posframe-parameters
               '((left-fringe  . 8)
                 (right-fringe . 8))))
-(use-package anki-editor)
+(use-package acp)
+(use-package agent-shell)
 
 ;; (use-package! hydra
 ;;   :defines (consult-imenu-config posframe-border-width)

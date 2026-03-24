@@ -17,13 +17,13 @@
        smooth-scroll     ; So smooth you won't believe it's not butter
        tabs              ; a tab bar for Emacs
        ;unicode           ; extended unicode support for various languages
+       ;;(treeemacs +lsp)
        (vc-gutter +pretty) ; vcs diff in the fringe
        ;;vi-tilde-fringe   ; fringe tildes to mark beyond EOB
        (window-select +numbers)    ; visually switch windows
        workspaces        ; tab emulation, persistence & separate workspaces
 
        :editor
-       ;;(evil +everywhere); come to the dark side, we have cookies
        file-templates    ; auto-snippets for empty files
        fold              ; (nigh) universal code folding
        (format +lsp)  ; automated prettiness
@@ -70,6 +70,7 @@
        (python +lsp +pyright +tree-sitter +uv)                                                ; beautiful is better than ugly
        (rust +lsp +tree-sitter)                                                         ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        (yaml +lsp +tree-sitter)                                                           ; JSON, but readable
+       (java +lsp +tree-sitter)
 
        :app
        ;;calendar

@@ -58,9 +58,9 @@
                                         ; gc-cons-percentage 0.6)
 
 (with-eval-after-load 'gcmh
-  (setq gcmh-idle-delay 60          ; 更频繁的GC
-        gcmh-auto-idle-delay-factor 0.3
-        gcmh-high-cons-threshold (* 500  1024 1024)
+  (setq gcmh-idle-delay 120          ; 更频繁的GC
+        gcmh-auto-idle-delay-factor 0.6
+        gcmh-high-cons-threshold (* 3 1024  1024 1024)
         gcmh-verbose nil))
 
 ;; ============================================================================

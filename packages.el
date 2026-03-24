@@ -41,6 +41,9 @@
 
 (package! ragmacs
   :recipe (:host github :repo "positron-solutions/ragmacs" :files ("*.el")))
+(package! shell-maker)
+(package! acp)
+(package! agent-shell)
 ;; (package! anki-editor
 ;;   :recipe (:host github :repo "anki-editor/anki-editor"))
 ;; (package! jupyter)

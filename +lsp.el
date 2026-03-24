@@ -1,6 +1,8 @@
 ;;; +lsp.el -*- lexical-binding: t; -*-
 
-(setq +lsp-prompt-to-install-server 'quiet)
+(setq +lsp-prompt-to-install-server 'quiet
+      lsp-java-save-actions-organize-imports nil
+      lsp-java-content-provider-preferred "fernflower")
 
 (setq lsp-java-vmargs '("-Declipse.application=org.eclipse.jdt.ls.core.id1"
                         "-Dosgi.bundles.defaultStartLevel=4"
@@ -25,10 +27,9 @@
                                          :default t)])
 (setq lsp-java-java-path "/usr/lib/jvm/java-21-openjdk/bin/java")
 
-(add-hook! java-ts-mode
-  (lsp))
 (add-hook! 'go-ts-mode-hook
   (setq go-ts-mode-indent-offset 2)
+  (setq lsp-enable-file-watchers t)
   (setq tab-width 2))
 
 ;; 诊断函数：查看 xref 项目的详细信息
@@ -107,7 +108,8 @@
   (add-hook! 'lsp-help-mode-hook (visual-line-mode 1))
   (setq lsp-log-io t
         lsp-diagnostics-provider :t
-        lsp-file-watch-threshold 5000
+        lsp-enable-file-watchers nil
+        lsp-file-watch-threshold 100
         lsp-headerline-breadcrumb-enable t
         lsp-diagnostics-provider :flymake
         lsp-headerline-breadcrumb-icons-enable nil
@@ -157,7 +159,8 @@
   (add-to-list 'copilot-indentation-alist '(prog-mode 2))
   (add-to-list 'copilot-indentation-alist '(org-mode 2)))
 
-                                        ; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file
+;;; https://github.com/blahgeek/emacs-lsp-booster?tab=readme-ov-file
+;;; emacs-lsp-booster
 (defun lsp-booster--advice-json-parse (old-fn &rest args)
   "Try to parse bytecode instead of json."
   (or
@@ -167,24 +170,38 @@
          (funcall bytecode))))
    (apply old-fn args)))
 
-(advice-add (if (progn (require 'json)
-                       (fboundp 'json-parse-buffer))
-                'json-parse-buffer
-              'json-read)
-            :around
-            #'lsp-booster--advice-json-parse)
-
 (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
   "Prepend emacs-lsp-booster command to lsp CMD."
   (let ((orig-result (funcall old-fn cmd test?)))
-    (if (and (not test?)                             ;; for check lsp-server-present?
-             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+    (if (and (not test?)                             ; for check lsp-server-present?
+             (not (file-remote-p default-directory)) ; see lsp-resolve-final-command, it would add extra shell wrapper
              lsp-use-plists
-             (not (functionp 'json-rpc-connection))  ;; native json-rpc
+             (not (functionp 'json-rpc-connection))  ; native json-rpc
              (executable-find "emacs-lsp-booster"))
         (progn
+          (when-let ((command-from-exec-path (executable-find (car orig-result))))  ; resolve command from exec-path (in case not found in $PATH)
+            (setcar orig-result command-from-exec-path))
           (message "Using emacs-lsp-booster for %s!" orig-result)
           (cons "emacs-lsp-booster" orig-result))
       orig-result)))
 
-(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+(define-minor-mode lsp-booster-minor-mode
+  "Toggle lsp-booster"
+  :init-value nil
+  :lighter " lsp-booster"
+  (if lsp-booster-minor-mode
+      (progn
+        (advice-add (if (progn (require 'json)
+                               (fboundp 'json-parse-buffer))
+                        'json-parse-buffer
+                      'json-read)
+                    :around #'lsp-booster--advice-json-parse)
+        (advice-add 'lsp-resolve-final-command
+                    :around #'lsp-booster--advice-final-command))
+    (advice-remove (if (progn (require 'json)
+                              (fboundp 'json-parse-buffer))
+                       'json-parse-buffer
+                     'json-read)
+                   #'lsp-booster--advice-json-parse)
+    (advice-remove 'lsp-resolve-final-command
+                   #'lsp-booster--advice-final-command)))

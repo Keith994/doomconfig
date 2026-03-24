@@ -222,7 +222,26 @@
   :desc "rewrite with response" "r" #'gptel-rewrite
   :desc "one shot question" "a" #'my/gptel-ask-from-minibuffer
   :desc "move to next prompt" "C-e" #'gptel-end-of-response
-  :desc "stop response" "S" #'gptel-abort))
+  :desc "stop response" "S" #'gptel-abort)
+ (:prefix
+  "A"
+  :desc "agent shell" "RET" #'agent-shell
+  :desc "toggle" "t" #'agent-shell-toggle
+  :desc "send file" "f" #'agent-shell-send-file
+  :desc "send region" "r" #'agent-shell-send-region))
+(map! :map org-mode-map
+      (:prefix
+       "C-x"
+       (:prefix
+        "n"
+        :desc "browse notes" "b" #'org-browse-news
+        "e" 'nil
+        "s" 'nil
+        (:prefix
+         "n"
+         :desc "narrow to block" "b" #'org-narrow-to-block
+         :desc "narrow to element" "e" #'org-narrow-to-subtree
+         :desc "narrow to subtree" "s" #'org-narrow-to-subtree))))
 (map! :map prog-mode-map "C-c C-f" #'+format/region-or-buffer)
 (map!
  :map lsp-mode-map
@@ -243,7 +262,15 @@
                (dape-continue)
              (dape)))
  "<S-f5>" #'dape-quit
- "C-<f10>" #'dape-until)
+ "C-<f10>" #'dape-until
+ (:prefix
+  "C-c"
+  (:prefix
+   "l"
+   :desc "workspace symbol" "S" #'consult-lsp-symbols
+   :desc "buffer symbol" "s" #'lsp-ui-imenu
+   :desc "workspace diagnostics" "W" #'consult-lsp-diagnostics
+   :desc "buffer diagnostics" "w" #'consult-lsp-file-diagnostics)))
 (map!
  :map json-mode-map
  :desc "fold toggle" "C-c TAB" #'+fold/toggle
@@ -299,6 +326,7 @@
   "C-c a" "gptel"
   "C-c s" "search"
   "C-c @" "outlines"
+  "C-c l" "lsp"
   )
 
 ;; tips and tricks
