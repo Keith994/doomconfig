@@ -37,7 +37,9 @@
        undo              ; persistent, smarter undo for your inevitable mistakes
 
        :checkers
-       (syntax +childframe +flymake)              ; tasing you for every semicolon you forget
+       (syntax +childframe +nflycheck)              ; tasing you for every semicolon you forget
+       (spell +flyspell) ; tasing you for misspelling mispelling
+       grammar           ; tasing grammar mistake every you make
 
        :term
        vterm             ; the best terminal emulation in Emacs
@@ -53,6 +55,7 @@
        (lsp +lsp)                 ; M-x vscode
        magit                ; a git porcelain for Emacs
        pdf               ; pdf enhancements
+       ein               ; tame Jupyter notebooks with emacs
        tree-sitter       ; syntax and parsing, sitting in a tree...
 
        :os

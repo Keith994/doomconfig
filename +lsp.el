@@ -111,7 +111,7 @@
         lsp-enable-file-watchers nil
         lsp-file-watch-threshold 100
         lsp-headerline-breadcrumb-enable t
-        lsp-diagnostics-provider :flymake
+        lsp-diagnostics-provider :flycheck
         lsp-headerline-breadcrumb-icons-enable nil
         lsp-headerline-breadcrumb-segments '(file symbols)
         lsp-imenu-index-symbol-kinds '(File Module Namespace Package Class Method Enum Interface

@@ -11,30 +11,34 @@
               (if mark-active
                   (kill-region (region-beginning) (region-end))
                 (backward-kill-word 1))))
+;;; goto-map
 (map!
  :map  goto-map
  "<TAB>" 'nil
- :desc "list errors" "e" 'flymake-show-buffer-diagnostics
+ :desc "list errors" "e" 'flycheck-display-error-at-point
  :desc "lsp doc" "y" 'lsp-ui-doc-glance
  :desc "avy jump char" "c" 'avy-goto-char-2
  :desc "disable" "M-c" 'nil
  :desc "goto file" "f" '+lookup/file
  :desc "xdg open at point" "x" #'browse-url
  :desc "imenu" "i" 'imenu)
-
+;;; M-] map
 (map!
  :prefix "M-]"
  :desc "centaur-tabs forward" "M-]" #'centaur-tabs-forward
- :desc "flymake-goto-next-error" "e" #'flymake-goto-next-error
+ :desc "flymake-goto-next-error" "e" #'flycheck-next-error
  :desc "vc-next-hunk" "g" #'+vc-gutter/next-hunk
  :desc "end of fun" "f" #'end-of-defun)
+;;; M-[ map
 (map!
  :prefix "M-["
  :desc "centaur-tabs backward" "M-[" #'centaur-tabs-backward
  :desc "vc-previous-hunk" "g" #'+vc-gutter/previous-hunk
- :desc "flymake-goto-previous-error" "e" #'flymake-goto-prev-error
+ :desc "flymake-goto-previous-error" "e" #'flycheck-previous-error
  :desc "beginning of fun" "f" #'beginning-of-defun)
+
 (map!
+ ;;; M- map
  "M-1" #'+workspace/switch-to-0
  "M-2" #'+workspace/switch-to-1
  "M-3" #'+workspace/switch-to-2
@@ -53,6 +57,7 @@
  "M-k" #'+lookup/documentation ;; M-k 查看文档
  "M-o" #'copilot-complete ;; M-o copilot补全
 
+ ;;; C- map
  "C-M-." #'+lookup/type-definition
  "C-M-/" #'dabbrev-expand ;; C-M-/ 动态展开缓冲区单词
  "C-M-s" #'my/sp-wrap-with-pair ;; 快速添加括号对
@@ -74,20 +79,24 @@
 
 ;; M- key binding
 
-;; C-x key binding
-;; 批量禁用不需要的 C-x 前缀绑定
+;;; C-x disable key binding
 (dolist
     (key '("+" "*" "#" "$" "'" "\\" "]" "[" "." "f" ";" "^" "`"
            "B" "C-M-+" "C-M--" "C-M-0" "C-M-=" "z" "X" "w" "n"
            "C-@" "6" "l" "C-z" "t"))
   (global-unset-key (kbd (concat "C-x " key))))
+;;; disable winum-keymap
+(map! :map winum-keymap "C-x w" nil)
+;;; C-x
 (map!
  :prefix "C-x"
  "k" 'my/smart-close-window-enhanced
  "9" 'doom/window-enlargen    ;; C-x 9 增大当前窗口
  "S" #'doom/sudo-save-buffer  ;; C-x S 以管理员权限保存文件
  "/" #'+vterm/toggle
+ "=" #'balance-windows
  (:prefix
+  ;;; C-x f
   "f"
   :desc "find file" "f" #'my/consult-find-file-or-projectile ;; C-c f f 打开文件
   :desc "jump to bookmark" "b" #'consult-bookmark ;; C-c f b 跳转到书签
@@ -98,6 +107,7 @@
   :desc "rename this file" "R" #'rename-file ;; C-c f r 重命名当前文件
   )
  (:prefix
+  ;;; C-x g
   "g"
   :desc "magit status" "g" #'magit-status ;; C-c g g 打开magit状态
   :desc "magit dispatch" "d" #'magit-dispatch ;; C-c g d 打开magit调度
@@ -114,12 +124,14 @@
   :desc "revert-hunk" "r" #'+vc-gutter/revert-hunk
   )
  (:prefix
+  ;;; C-x i
   "i"
   :desc "insert emoji" "e" #'emoji-search
   :desc "insert char" "c" #'insert-char
   :desc "insert file" "f" #'insert-file
   :desc "insert unicode" "y" #'+default/yank-pop)
  (:prefix
+  ;;; C-x p
   "p"
   :desc "switch project" "p" #'projectile-switch-project ;; C-c p p 切换项目
   :desc "find files" "f" #'projectile-find-file ;; C-c p f 在项目中查找文件
@@ -136,6 +148,7 @@
   :desc "index project" "I" #'projectile-index-project ;; C-c p I 索引项目
   :desc "replace" "R" #'projectile-replace) ;; C-c p R 替换文本
  (:prefix
+  ;;; C-x w
   "w"
   :desc "split window right" "v" #'split-window-right ;; C-c w s 符合vim习惯
   :desc "save session" "s" #'+workspace/save ;; C-c W s 保存工作区
@@ -148,6 +161,7 @@
   :desc "next workspace" "w" #'+workspace/switch-to ;; C-c w w 切换到下一个工作区
   )
  (:prefix
+  ;;; C-x n
   "n"
   :desc "browse notes" "b" #'+default/browse-notes ;; C-c n b 浏览笔记
   :desc "agender" "a" #'org-agenda
@@ -158,16 +172,17 @@
   :desc "daily note" "d" #'org-roam-dailies-capture-today
   :desc "todo" "t" #'org-todo-list)
  (:prefix
+  ;;; C-x t
   "t"
-  :desc "toggle flymake" "f" #'flymake-mode
+  :desc "toggle flycheck" "f" #'flycheck-mode
   :desc "toggle display-line-numbers-mode" "l" #'display-line-numbers-mode
   :desc "toggle wrap" "w" #'toggle-truncate-lines
   :desc "toggle indent guide" "i" #'highlight-indent-mode))
 
-;; C-c key binding
+;;; C-c key binding
 (map! :map persp-mode-map "C-c w" nil)
 (map! :map projectile-mode-map "C-c p" nil)
-;; 批量禁用不需要的 C-c 前缀绑定
+;;; C-c 批量禁用不需要的 C-c 前缀绑定
 (dolist
     (key '("l" "e" "p" "C-b" "i" "M-g"))
   (map! :prefix "C-c " key 'nil))
@@ -178,6 +193,7 @@
  "C->" #'mc/mark-all-like-this
  :desc "query replace" "%" #'query-replace-regexp
  (:prefix
+  ;;; C-c b
   "b"
   :desc "switch buffer" "b" #'+vertico/switch-workspace-buffer
   :desc "project buffer" "p" #'projectile-switch-to-buffer
@@ -193,6 +209,7 @@
   :desc "rename buffer" "R" #'rename-buffer
   )
  (:prefix
+  ;;; C-c s
   "s"
   :desc "consult ripgrep" "s" #'consult-buffer ;; C-c s s 在项目中搜索文本
   :desc "consult grep" "g" #'consult-ripgrep ;; C-c s g 使用grep搜索文本
@@ -202,6 +219,7 @@
   :desc "search and jump file" "f" #'+lookup/file ;; C-c s f 跳转到文件
   )
  (:prefix
+  ;;; C-c m
   "m"
   :desc "mark current line" "l" #'my/mark-current-line
   :desc "consult mark" "m" #'consult-mark ;; C-c m m 跳转到标记
@@ -209,6 +227,7 @@
   :desc "consult bookmark" "b" #'consult-bookmark ;; C-c m b 书签
   )
  (:prefix
+  ;;; C-c a
   "a" ;; make menu selection persistent across this Emacs session by pressing C-x C-s:
   :desc "open llm buffer" "RET" #'gptel
   :desc "read preset" "p" #'gptel--read-apply-preset
@@ -224,11 +243,13 @@
   :desc "move to next prompt" "C-e" #'gptel-end-of-response
   :desc "stop response" "S" #'gptel-abort)
  (:prefix
+  ;;; C-c A
   "A"
   :desc "agent shell" "RET" #'agent-shell
   :desc "toggle" "t" #'agent-shell-toggle
   :desc "send file" "f" #'agent-shell-send-file
   :desc "send region" "r" #'agent-shell-send-region))
+;;; org-mode-map
 (map! :map org-mode-map
       (:prefix
        "C-x"
@@ -242,7 +263,9 @@
          :desc "narrow to block" "b" #'org-narrow-to-block
          :desc "narrow to element" "e" #'org-narrow-to-subtree
          :desc "narrow to subtree" "s" #'org-narrow-to-subtree))))
+;;; prog-mode-map
 (map! :map prog-mode-map "C-c C-f" #'+format/region-or-buffer)
+;;; lsp-mode-map
 (map!
  :map lsp-mode-map
  "M-a" #'lsp-execute-code-action
@@ -271,15 +294,18 @@
    :desc "buffer symbol" "s" #'lsp-ui-imenu
    :desc "workspace diagnostics" "W" #'consult-lsp-diagnostics
    :desc "buffer diagnostics" "w" #'consult-lsp-file-diagnostics)))
+;;; json-mode-map
 (map!
  :map json-mode-map
  :desc "fold toggle" "C-c TAB" #'+fold/toggle
  :desc "beautify json" "C-c C-k" #'json-mode-beautify
  :desc "nullify sexp" "C-c C-f" #'json-nullify-sexp
  :desc "increase number at point" "C-c C-i" #'json-increment-number-at-point)
+;;; python-ts-mode-map
 (map!
  :map python-ts-mode-map
  :desc "run project" "C-c C-c" #'my/python-run-current-script)
+;;; gptel-mode
 (map!
  :mode gptel-mode
  :desc "gptel send" "C-c C-c" #'gptel-send
@@ -287,6 +313,7 @@
  :desc "gptel rewrite" "C-c C-r" #'gptel-rewrite
  :desc "gptel menu" "C-c C-m" #'gptel-menu
  :desc "gptel open" "C-c C-o" #'gptel)
+;;; embark-map
 (with-eval-after-load 'embark
   (dolist (map '(embark-identifier-map
                  embark-command-map
@@ -301,7 +328,7 @@
   (map! :map embark-general-map
         :desc "llm quick explain" "?" #'gptel-quick))
 
-;; whick-key describe
+;;; which-key decribtion
 (which-key-add-key-based-replacements
   "C-x RET" "coding system"
   "C-x 4" "open in other window"
@@ -320,7 +347,8 @@
   "C-x f" "files"
   "C-x i" "insert"
   "C-x t" "toggle"
-  "C-c n" "notes"
+  "C-x n" "notes"
+  "C-x v" "git"
   "C-c b" "buffers"
   "C-c m" "marks/bookmakrs"
   "C-c a" "gptel"

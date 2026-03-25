@@ -50,6 +50,9 @@
   ;; code here will run after the package is loaded
   (setq hl-todo-highlight-punctuation ":"))
 
+(with-eval-after-load 'flycheck
+  (setq flycheck-auto-display-errors-after-checking nil))
+
 
 ;; ============================================================================
 ;; Doom Modeline

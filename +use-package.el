@@ -509,7 +509,7 @@ example:
 ;;         ("i" display-time-mode "time *" :toggle t)
 ;;         ("m" doom-modeline-mode "modern mode-line *" :toggle t))
 ;;        "Program"
-;;        (("f" flymake-mode "flymake" :toggle t)
+;;        (("f" flycheck-mode "flycheck" :toggle t)
 ;;         ("W" which-function-mode "current function *" :toggle t)
 ;;         ("v" global-diff-hl-mode "gutter *" :toggle t)
 ;;         ("V" diff-hl-flydiff-mode "live gutter *" :toggle t)

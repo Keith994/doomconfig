@@ -1,10 +1,12 @@
 ;;; +func.el -*- lexical-binding: t; -*-
 
+;;;###autoload
 (defun my/delete-to-beginning-of-line ()
   "Delete from point to the beginning of the line."
   (interactive)
   (delete-region (point) (line-beginning-position)))
 
+;;;###autoload
 (defun my/consult-find-file-or-projectile ()
   "在projectile项目中查找文件,否则使用consult-find-file"
   (interactive)
@@ -12,6 +14,7 @@
       (projectile-find-file)
     (consult-find)))
 
+;;;###autoload
 (defun my/sp-wrap-with-pair ()
   "Use functions like sp-wrap-round to add pairs, read characters from the terminal to decide which one to use."
   (interactive)
@@ -57,6 +60,7 @@
     (message relative-path)
     (kill-new relative-path)))
 
+;;;###autoload
 (defun my/smart-close-window-enhanced ()
   "Smart window/buffer management:
    - Multiple windows: close current window, keep buffer
@@ -96,6 +100,7 @@
     (set-mark-command nil)
     (message "标记已设置")))
 
+;;;###autoload
 (defun  my/smart-upcase-char-or-word ()
   "智能大写当前字符或单词"
   (interactive)
@@ -103,6 +108,7 @@
       (upcase-region (region-beginning) (region-end)) ;; 如果有选区，转换选区内的文本为大写
     (upcase-char 1))) ;; 否则，大写当前字符
 
+;;;###autoload
 (defun my/smart-downcase-char-or-word ()
   "智能小写当前字符或单词"
   (interactive)
@@ -112,6 +118,7 @@
       (downcase-region (point) (progn (forward-char 1) (point)))
       (backward-char 1)))) ;; 否则，小写当前字符
 
+;;;###autoload
 (defun my/copy-function-at-point ()
   "复制当前函数内容到剪贴板"
   (interactive)
@@ -125,6 +132,7 @@
 ;; text content without any text properties, deactivates the mark, and returns
 ;; the extracted content. It is designed to be used interactively or called
 ;; from other Lisp code.
+;;;###autoload
 (defun my/get-current-function-content ()
   "Return the content of the function at point without text properties."
   (interactive)
@@ -134,6 +142,7 @@
       (deactivate-mark)  ; 取消标记
       content)))
 
+;;;###autoload
 (defun gptel-add-comment ()
   "Add comments to the current function."
   (interactive)
@@ -163,6 +172,7 @@
 
 (defvar gptel-lookup--history nil)
 
+;;;###autoload
 (defun my/gptel-ask-from-minibuffer (prompt)
   (interactive (list (read-string "Ask ChatGPT: " nil gptel-lookup--history)))
   (when (string= prompt "") (user-error "A prompt is required."))
@@ -182,6 +192,7 @@
                             (side . bottom)
                             (window-height . ,#'fit-window-to-buffer))))))))
 
+;;;###autoload
 (defun my/comment-dwim ()
   "Comment region if active, otherwise comment current line.
 If already commented, uncomment instead."
@@ -193,6 +204,7 @@ If already commented, uncomment instead."
             (end (line-end-position)))
         (comment-or-uncomment-region beg end)))))
 
+;;;###autoload
 (defun my/new-scratch-buffer ()
   "Always create a new *scratch* buffer."
   (interactive)
@@ -207,6 +219,7 @@ If already commented, uncomment instead."
     ;; 设置初始模式（可选）
     (org-mode)))
 
+;;;###autoload
 (defun my/switch-scratch-buffer ()
   "Switch between multiple scratch buffers."
   (interactive)
@@ -218,11 +231,13 @@ If already commented, uncomment instead."
     (when selected
       (switch-to-buffer selected))))
 
+;;;###autoload
 (defun my/switch-to-last-open-buffer ()
   "Switch to the most recently visited buffer other than the current one."
   (interactive)
   (switch-to-buffer (other-buffer)))
 
+;;;###autoload
 (defun my/kill-ring-save ()
   "Copy marked region or copy current line."
   (interactive)
@@ -234,6 +249,7 @@ If already commented, uncomment instead."
       (kill-ring-save (line-beginning-position) (line-end-position))
       (message "Copied current line"))))
 
+;;;###autoload
 (defun my/mark-current-line ()
   "Mark the current line."
   (interactive)
@@ -241,6 +257,7 @@ If already commented, uncomment instead."
   (set-mark-command nil)
   (end-of-line))
 
+;;;###autoload
 (defun my/python-run-current-script ()
   "Run the current Python script in a shell buffer."
   (interactive)
