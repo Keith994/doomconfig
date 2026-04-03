@@ -4,7 +4,7 @@
 ;; Completion & UI
 ;; ============================================================================
 
-;; Corfu Completion
+;;; Corfu Completion
 (use-package corfu
   :bind (:map corfu-map
               ("RET" . nil)
@@ -15,6 +15,7 @@
   (setq corfu-auto-prefix 2)
   (setq corfu-quit-no-match 'separator)
   (setq corfu-preselect 'first)
+  (setq tab-always-indent 'complete)
   ;; 全局启用
   (global-corfu-mode 1))
 
@@ -427,14 +428,14 @@ example:
                2)))))
 
 ;; Display vertico in the child frame
-(use-package vertico-posframe
-  :functions posframe-poshandler-frame-center-near-bottom
-  :hook (vertico-mode . vertico-posframe-mode)
-  :init (setq vertico-posframe-poshandler
-              #'posframe-poshandler-frame-center-near-bottom
-              vertico-posframe-parameters
-              '((left-fringe  . 8)
-                (right-fringe . 8))))
+;; (use-package vertico-posframe
+;;   :functions posframe-poshandler-frame-center-near-bottom
+;;   :hook (vertico-mode . vertico-posframe-mode)
+;;   :init (setq vertico-posframe-poshandler
+;;               #'posframe-poshandler-frame-center-near-bottom
+;;               vertico-posframe-parameters
+;;               '((left-fringe  . 8)
+;;                 (right-fringe . 8))))
 (use-package acp)
 (use-package agent-shell)
 

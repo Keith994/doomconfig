@@ -118,10 +118,9 @@
   :desc "magit branch" "b" #'magit-branch ;; C-c g b 管理分支
   :desc "magit checkout" "c" #'magit-checkout ;; C-c g c 切换分支
   :desc "magit log" "l" #'magit-log ;; C-c g l 查看提交日志
-  :desc "next-hunk" "n" #'+vc-gutter/next-hunk
-  :desc "previous-hunk" "p" #'+vc-gutter/previous-hunk
   :desc "stage-hunk" "s" #'+vc-gutter/next-h
   :desc "revert-hunk" "r" #'+vc-gutter/revert-hunk
+  :desc "hunk diff preview" "p" #'diff-hl-show-hunk
   )
  (:prefix
   ;;; C-x i
@@ -195,6 +194,7 @@
  (:prefix
   ;;; C-c b
   "b"
+  :desc "message buffer" "m" #'switch-to-message-buffer
   :desc "switch buffer" "b" #'+vertico/switch-workspace-buffer
   :desc "project buffer" "p" #'projectile-switch-to-buffer
   :desc "new buffer" "n" #'my/new-scratch-buffer ;; 新建一个buffer
@@ -255,7 +255,7 @@
        "C-x"
        (:prefix
         "n"
-        :desc "browse notes" "b" #'org-browse-news
+         :desc "browse notes" "b" #'+default/browse-notes
         "e" 'nil
         "s" 'nil
         (:prefix

@@ -16,13 +16,50 @@
 
 ;;;###autoload
 (defun my/sp-wrap-with-pair ()
-  "Use functions like sp-wrap-round to add pairs, read characters from the terminal to decide which one to use."
+  "Wrap region or word with selected pair characters."
   (interactive)
-  (let ((key (read-key "Enter a pair character: ")))
+  (let ((key (read-key "Enter a pair character: "))
+        (pair-start)
+        (pair-end)
+        (beg)
+        (end))
     (cond
-     ((memq key '(?\( ?\< ?\[ ?\{ ?\" ?\'))
-      (sp-wrap-with-pair (char-to-string key)))
-     )))
+     ((memq key '(?\( ?\< ?\[ ?\{ ?\" ?\' ?\* ?\_ ?\/ ?\+ ?\= ?\~))
+      (setq pair-start (char-to-string key))
+      (setq pair-end (cond
+                      ((eq key ?\() ")")
+                      ((eq key ?\<) ">")
+                      ((eq key ?\[) "]")
+                      ((eq key ?\{) "}")
+                      ((eq key ?\") "\"")
+                      ((eq key ?\') "'")
+                      ((eq key ?\*) "*")
+                      ((eq key ?\_) "_")
+                      ((eq key ?\/) "/")
+                      ((eq key ?\+) "+")
+                      ((eq key ?\=) "=")
+                      ((eq key ?\~) "~"))))
+     (t
+      (error "Invalid pair character")))
+
+    (if (use-region-p)
+        (progn
+          (setq beg (region-beginning))
+          (setq end (region-end)))
+      (save-excursion
+        (forward-word)
+        (setq end (point))
+        (backward-word)
+        (setq beg (point))))
+
+    (save-excursion
+      (goto-char end)
+      (insert pair-end)
+      (goto-char beg)
+      (insert pair-start))
+
+    (when (use-region-p)
+      (goto-char (+ end (length pair-start) (length pair-end))))))
 
 ;;;###autoload
 (defun my/async-shell-command-no-window (command)
@@ -277,3 +314,12 @@ If already commented, uncomment instead."
                                             (insert "\nProcess finished."))))))))
           (display-buffer "*Python Output*"))
       (message "Buffer is not visiting a file."))))
+
+;;;###autoload
+(defun switch-to-message-buffer ()
+  "快速切换到Message的buffer里面。"
+  (interactive)
+  (let ((buffer (get-buffer "*Messages*")))
+    (if buffer
+        (switch-to-buffer buffer)
+      (message "没有找到Message buffer"))))

@@ -5,7 +5,8 @@
 
        :completion
        (corfu +icons +abbrev +orderless)  ; complete with cap(f), cape and a flying feather!
-       (vertico +icons +childframe)           ; the search engine of the future
+        ;(vertico +icons +childframe)           ; the search engine of the future
+       (vertico +icons)           ; the search engine of the future
 
        :ui
        doom              ; what makes DOOM look the way it does
