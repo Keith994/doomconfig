@@ -29,16 +29,12 @@
 ;; ============================================================================
 ;; Core Settings
 ;; ============================================================================
-(setq org-directory "~/org/"
-      org-roam-directory "~/org/roam"
-      org-roam-completion-everywhere t
-      tab-width 2
+(setq tab-width 2
       menu-bar-line-wrapping-menu t
       confirm-kill-emacs nil
       display-line-numbers t
       display-line-numbers-type 'relative
       delete-by-moving-to-trash t)
-
 
 ;; ============================================================================
 ;; Editor Behavior

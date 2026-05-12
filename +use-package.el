@@ -152,6 +152,11 @@
 (use-package consult-todo
   :defer t)
 
+(use-package org-ql
+  :defer t)
+(use-package org-superstar
+             :defer t)
+
 ;; Keycast
 (use-package keycast
   :defer t)

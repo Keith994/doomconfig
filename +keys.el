@@ -71,7 +71,7 @@
  "C-s" #'consult-line ;; 搜索当前buffer
  "C--" #'er/contract-region      ;; C-x - 收缩选择区域
  "C-=" #'er/expand-region ;; C-= 扩大选择区域
- "C-u" #'my/delete-to-beginning-of-line ;; C-u 删除到行首
+ ;; "C-u" #'my/delete-to-beginning-of-line ;; C-u 删除到行首
  "C->" #'mc/mark-next-like-this
  "C-<" #'mc/mark-previous-like-this
  "C-SPC" #'my/smart-mark-or-expand-region
@@ -90,34 +90,38 @@
 ;;; C-x
 (map!
  :prefix "C-x"
+ "C->" #'mc/mark-all-like-this
+ :desc "query replace" "%" #'query-replace-regexp
  "k" 'my/smart-close-window-enhanced
  "9" 'doom/window-enlargen    ;; C-x 9 增大当前窗口
  "S" #'doom/sudo-save-buffer  ;; C-x S 以管理员权限保存文件
  "/" #'+vterm/toggle
  "=" #'balance-windows
+ "M-s" #'save-some-buffers
  (:prefix
   ;;; C-x f
   "f"
-  :desc "find file" "f" #'my/consult-find-file-or-projectile ;; C-c f f 打开文件
-  :desc "jump to bookmark" "b" #'consult-bookmark ;; C-c f b 跳转到书签
-  :desc "open config file" "c" #'doom/open-private-config ;; C-c f c 打开配置文件
-  :desc "open dotfile" "d" #'doom/open-dotfile ;; C-c f d 打开dotfile
-  :desc "open org-roam file" "o" #'org-roam-node-find ;; C-c f o 打开org-roam文件
-  :desc "delete this file" "D" #'doom/delete-this-file ;; C-c f D 删除当前文件
-  :desc "rename this file" "R" #'rename-file ;; C-c f r 重命名当前文件
+  :desc "find note" "n" #'+default/browse-notes
+  :desc "find file" "f" #'my/consult-find-file-or-projectile ;; C-x f f 打开文件
+  :desc "jump to bookmark" "b" #'consult-bookmark ;; C-x f b 跳转到书签
+  :desc "open config file" "c" #'doom/open-private-config ;; C-x f c 打开配置文件
+  :desc "open dotfile" "d" #'doom/open-dotfile ;; C-x f d 打开dotfile
+  :desc "open org-roam file" "o" #'org-roam-node-find ;; C-x f o 打开org-roam文件
+  :desc "delete this file" "D" #'doom/delete-this-file ;; C-x f D 删除当前文件
+  :desc "rename this file" "R" #'rename-file ;; C-x f r 重命名当前文件
   )
  (:prefix
   ;;; C-x g
   "g"
-  :desc "magit status" "g" #'magit-status ;; C-c g g 打开magit状态
-  :desc "magit dispatch" "d" #'magit-dispatch ;; C-c g d 打开magit调度
-  :desc "magit pull" "p" #'magit-pull ;; C-c g p 拉取最新代码
-  :desc "magit push" "P" #'magit-push ;; C-c g P 推送代码
-  :desc "magit fetch" "f" #'magit-fetch ;; C-c g f 获取远程更新
-  :desc "magit fixtup" "F" #'magit-commit-fixup ;; C-c g F 修复提交
-  :desc "magit branch" "b" #'magit-branch ;; C-c g b 管理分支
-  :desc "magit checkout" "c" #'magit-checkout ;; C-c g c 切换分支
-  :desc "magit log" "l" #'magit-log ;; C-c g l 查看提交日志
+  :desc "magit status" "g" #'magit-status ;; C-x g g 打开magit状态
+  :desc "magit dispatch" "d" #'magit-dispatch ;; C-x g d 打开magit调度
+  :desc "magit pull" "p" #'magit-pull ;; C-x g p 拉取最新代码
+  :desc "magit push" "P" #'magit-push ;; C-x g P 推送代码
+  :desc "magit fetch" "f" #'magit-fetch ;; C-x g f 获取远程更新
+  :desc "magit fixtup" "F" #'magit-commit-fixup ;; C-x g F 修复提交
+  :desc "magit branch" "b" #'magit-branch ;; C-x g b 管理分支
+  :desc "magit checkout" "c" #'magit-checkout ;; C-x g c 切换分支
+  :desc "magit log" "l" #'magit-log ;; C-x g l 查看提交日志
   :desc "stage-hunk" "s" #'+vc-gutter/next-h
   :desc "revert-hunk" "r" #'+vc-gutter/revert-hunk
   :desc "hunk diff preview" "p" #'diff-hl-show-hunk
@@ -132,39 +136,39 @@
  (:prefix
   ;;; C-x p
   "p"
-  :desc "switch project" "p" #'projectile-switch-project ;; C-c p p 切换项目
-  :desc "find files" "f" #'projectile-find-file ;; C-c p f 在项目中查找文件
-  :desc "search" "s" #'consult-ripgrep  ;; C-c p s 在项目中搜索文本
-  :desc "switch buffer" "b" #'projectile-switch-to-buffer ;; C-c p b 切换项目buffer
-  :desc "kill buffers" "k" #'projectile-kill-buffers ;; C-c p k 杀死项目buffer
-  :desc "add project" "a" #'projectile-add-known-project ;; C-c p a 添加已知项目
-  :desc "remove project" "d" #'projectile-remove-known-project ;; C-c p d 移除已知项目
-  :desc "invalidate cache" "i" #'projectile-invalidate-cache ;; C-c p i 使项目缓存失效
-  :desc "comple" "c" #'projectile-compile-project ;; C-c p c 编译项目
-  :desc "run" "x" #'projectile-run-project ;; C-c p x 运行
-  :desc "edit local vars" "e" #'projectile-edit-dir-locals ;; C-c p e 编辑项目本地变量
-  :desc "search project files" "SPC" #'projectile-find-file ;; C-c p SPC 在项目文件中搜索
-  :desc "index project" "I" #'projectile-index-project ;; C-c p I 索引项目
-  :desc "replace" "R" #'projectile-replace) ;; C-c p R 替换文本
+  :desc "switch project" "p" #'projectile-switch-project ;; C-x p p 切换项目
+  :desc "find files" "f" #'projectile-find-file ;; C-x p f 在项目中查找文件
+  :desc "search" "s" #'consult-ripgrep  ;; C-x p s 在项目中搜索文本
+  :desc "switch buffer" "b" #'projectile-switch-to-buffer ;; C-x p b 切换项目buffer
+  :desc "kill buffers" "k" #'projectile-kill-buffers ;; C-x p k 杀死项目buffer
+  :desc "add project" "a" #'projectile-add-known-project ;; C-x p a 添加已知项目
+  :desc "remove project" "d" #'projectile-remove-known-project ;; C-x p d 移除已知项目
+  :desc "invalidate cache" "i" #'projectile-invalidate-cache ;; C-x p i 使项目缓存失效
+  :desc "comple" "c" #'projectile-compile-project ;; C-x p c 编译项目
+  :desc "run" "x" #'projectile-run-project ;; C-x p x 运行
+  :desc "edit local vars" "e" #'projectile-edit-dir-locals ;; C-x p e 编辑项目本地变量
+  :desc "search project files" "SPC" #'projectile-find-file ;; C-x p SPC 在项目文件中搜索
+  :desc "index project" "I" #'projectile-index-project ;; C-x p I 索引项目
+  :desc "replace" "R" #'projectile-replace) ;; C-x p R 替换文本
  (:prefix
   ;;; C-x w
   "w"
-  :desc "split window right" "v" #'split-window-right ;; C-c w s 符合vim习惯
-  :desc "save session" "s" #'+workspace/save ;; C-c W s 保存工作区
-  :desc "load session" "l" #'+workspace/load ;; C-c W l 加载工作区
-  :desc "recover last session" "r" #'+workspace/restore-last-session ;; C-c w r 回复最后一次会话
-  :desc "rename workspace" "R" #'+workspace/rename ;; C-c w R 重命名工作区
-  :desc "new workspace" "n" #'+workspace/new ;; C-c W n 新建工作区
-  :desc "kill workspace" "d" #'+workspace/kill ;; C-c W d 删除工作区
-  :desc "display workspaces" "i" #'+workspace/display ;; C-c W i 显示工作区列表
-  :desc "next workspace" "w" #'+workspace/switch-to ;; C-c w w 切换到下一个工作区
+  :desc "split window right" "v" #'split-window-right ;; C-x w s 符合vim习惯
+  :desc "save session" "s" #'+workspace/save ;; C-x W s 保存工作区
+  :desc "load session" "l" #'+workspace/load ;; C-x W l 加载工作区
+  :desc "recover last session" "r" #'+workspace/restore-last-session ;; C-x w r 回复最后一次会话
+  :desc "rename workspace" "R" #'+workspace/rename ;; C-x w R 重命名工作区
+  :desc "new workspace" "n" #'+workspace/new ;; C-x W n 新建工作区
+  :desc "kill workspace" "k" #'+workspace/kill ;; C-x W d 删除工作区
+  :desc "display workspaces" "i" #'+workspace/display ;; C-x W i 显示工作区列表
+  :desc "next workspace" "w" #'+workspace/switch-to ;; C-x w w 切换到下一个工作区
   )
  (:prefix
   ;;; C-x n
   "n"
-  :desc "browse notes" "b" #'+default/browse-notes ;; C-c n b 浏览笔记
+  :desc "browse notes" "b" #'+default/browse-notes ;; C-x n b 浏览笔记
   :desc "agender" "a" #'org-agenda
-  :desc "capture" "n" #'org-capture
+  :desc "capture" "c" #'org-capture
   :desc "roam buffer toggle" "l" #'org-roam-buffer-toggle
   :desc "roam node find" "f" #'org-roam-node-find
   :desc "roam node insert" "i" #'org-roam-node-insert
@@ -176,23 +180,9 @@
   :desc "toggle flycheck" "f" #'flycheck-mode
   :desc "toggle display-line-numbers-mode" "l" #'display-line-numbers-mode
   :desc "toggle wrap" "w" #'toggle-truncate-lines
-  :desc "toggle indent guide" "i" #'highlight-indent-mode))
-
-;;; C-c key binding
-(map! :map persp-mode-map "C-c w" nil)
-(map! :map projectile-mode-map "C-c p" nil)
-;;; C-c 批量禁用不需要的 C-c 前缀绑定
-(dolist
-    (key '("l" "e" "p" "C-b" "i" "M-g"))
-  (map! :prefix "C-c " key 'nil))
-(map! :map emacs-lisp-mode-map "C-c C-f" #'+format/region-or-buffer)
-(map!
- :prefix
- "C-c"
- "C->" #'mc/mark-all-like-this
- :desc "query replace" "%" #'query-replace-regexp
+  :desc "toggle indent guide" "i" #'highlight-indent-mode)
  (:prefix
-  ;;; C-c b
+  ;;; C-x b
   "b"
   :desc "message buffer" "m" #'switch-to-message-buffer
   :desc "switch buffer" "b" #'+vertico/switch-workspace-buffer
@@ -200,38 +190,28 @@
   :desc "new buffer" "n" #'my/new-scratch-buffer ;; 新建一个buffer
   :desc "scratchs buffers" "s" #'my/switch-scratch-buffer
   :desc "last open buffer" "l" #'my/switch-to-last-open-buffer
-  :desc "kill buffer" "k" #'kill-this-buffer ;; C-c b k 关闭当前buffer
-  :desc "ibuffers" "i" #'ibuffer ;; C-c b i 列出所有buffer
-  :desc "revert buffer" "r" #'revert-buffer ;; C-c b r 刷新当前buffer
-  :desc "kill other buffers" "c" #'doom/kill-other-buffers ;; C-c b o 关闭其他buffer
-  :desc "open project scratch buffer" "x" #'doom/open-project-scratch-buffer ;; C-c b x 打开scratch buffer
+  :desc "kill buffer" "k" #'kill-this-buffer ;; C-x b k 关闭当前buffer
+  :desc "ibuffers" "i" #'ibuffer ;; C-x b i 列出所有buffer
+  :desc "revert buffer" "r" #'revert-buffer ;; C-x b r 刷新当前buffer
+  :desc "kill other buffers" "c" #'doom/kill-other-buffers ;; C-x b o 关闭其他buffer
+  :desc "open project scratch buffer" "x" #'doom/open-project-scratch-buffer ;; C-x b x 打开scratch buffer
   :desc "open scratch" "o" #'doom/toggle-scratch-buffer
   :desc "rename buffer" "R" #'rename-buffer
   )
  (:prefix
-  ;;; C-c s
-  "s"
-  :desc "consult ripgrep" "s" #'consult-buffer ;; C-c s s 在项目中搜索文本
-  :desc "consult grep" "g" #'consult-ripgrep ;; C-c s g 使用grep搜索文本
-  :desc "consult imenu" "i" #'consult-imenu ;; C-c s i 跳转到符号
-  :desc "consult line" "l" #'consult-line ;; C-c s l 搜索当前buffer
-  :desc "consult multi-occur" "o" #'consult-multi-occur ;; C-c s o 多buffer搜索
-  :desc "search and jump file" "f" #'+lookup/file ;; C-c s f 跳转到文件
-  )
- (:prefix
-  ;;; C-c m
+  ;;; C-x m
   "m"
   :desc "mark current line" "l" #'my/mark-current-line
-  :desc "consult mark" "m" #'consult-mark ;; C-c m m 跳转到标记
-  :desc "consult global mark" "g" #'consult-global-mark ;; C-c m g 全局标记
-  :desc "consult bookmark" "b" #'consult-bookmark ;; C-c m b 书签
+  :desc "consult mark" "m" #'consult-mark ;; C-x m m 跳转到标记
+  :desc "consult global mark" "g" #'consult-global-mark ;; C-x m g 全局标记
+  :desc "consult bookmark" "b" #'consult-bookmark ;; C-x m b 书签
   )
  (:prefix
-  ;;; C-c a
+  ;;; C-x a
   "a" ;; make menu selection persistent across this Emacs session by pressing C-x C-s:
   :desc "open llm buffer" "RET" #'gptel
   :desc "read preset" "p" #'gptel--read-apply-preset
-  :desc "set org topic" "t" #'gptel-org-set-topic ;; C-c a t 设置org topic
+  :desc "set org topic" "t" #'gptel-org-set-topic ;; C-x a t 设置org topic
   :desc "send message" "s" #'gptel-send
   :desc "quick explain" "e" #'gptel-quick
   :desc "open menu" "m" #'gptel-menu
@@ -243,28 +223,52 @@
   :desc "move to next prompt" "C-e" #'gptel-end-of-response
   :desc "stop response" "S" #'gptel-abort)
  (:prefix
-  ;;; C-c A
+  ;;; C-x A
   "A"
   :desc "agent shell" "RET" #'agent-shell
   :desc "toggle" "t" #'agent-shell-toggle
   :desc "send file" "f" #'agent-shell-send-file
-  :desc "send region" "r" #'agent-shell-send-region))
+  :desc "send region" "r" #'agent-shell-send-region)
+ (:prefix
+  ;;; C-x s
+  "s"
+  :desc "consult ripgrep" "s" #'consult-buffer ;; C-x s s 在项目中搜索文本
+  :desc "consult grep" "g" #'consult-ripgrep ;; C-x s g 使用grep搜索文本
+  :desc "consult imenu" "i" #'consult-imenu ;; C-x s i 跳转到符号
+  :desc "consult line" "l" #'consult-line ;; C-x s l 搜索当前buffer
+  :desc "consult multi-occur" "o" #'consult-multi-occur ;; C-x s o 多buffer搜索
+  :desc "search and jump file" "f" #'+lookup/file ;; C-x s f 跳转到文件
+  ))
 ;;; org-mode-map
-(map! :map org-mode-map
-      (:prefix
-       "C-x"
-       (:prefix
-        "n"
-         :desc "browse notes" "b" #'+default/browse-notes
-        "e" 'nil
-        "s" 'nil
+(with-eval-after-load 'org
+  (map! :map org-mode-map
         (:prefix
-         "n"
-         :desc "narrow to block" "b" #'org-narrow-to-block
-         :desc "narrow to element" "e" #'org-narrow-to-subtree
-         :desc "narrow to subtree" "s" #'org-narrow-to-subtree))))
-;;; prog-mode-map
-(map! :map prog-mode-map "C-c C-f" #'+format/region-or-buffer)
+         "C-x"
+         (:prefix
+          "n"
+          :desc "browse notes" "b" #'+default/browse-notes
+          :desc "okr file" "k" #'my/open-current-quarter-okr
+          :desc "org-ql-search" "q" 'org-ql-search
+          "s" 'nil
+          (:prefix
+           "n"
+           :desc "narrow quit" "q" #'widen
+           :desc "narrow to block" "b" #'org-narrow-to-block
+           :desc "narrow to element" "e" #'org-narrow-to-subtree
+           :desc "narrow to subtree" "s" #'org-narrow-to-subtree))))
+  )
+(map! "C-x C-k" #'+format/region-or-buffer)
+
+;; (map! :map emacs-lisp-mode-map "C-x C-k" #'+format/region-or-buffer)
+;;; C-c key binding
+(map! :map persp-mode-map "C-c w" nil)
+(map! :map projectile-mode-map "C-c p" nil)
+
+;;; C-c 批量禁用不需要的 C-c 前缀绑定
+;; (dolist
+;;     (key '("l" "e" "p" "C-b" "i" "M-g"))
+;;   (map! :prefix "C-c " key 'nil))
+
 ;;; lsp-mode-map
 (map!
  :map lsp-mode-map
@@ -327,7 +331,20 @@
     (define-key (symbol-value map) (kbd "k") #'+lookup/documentation))
   (map! :map embark-general-map
         :desc "llm quick explain" "?" #'gptel-quick))
-
+;;; org-mode map
+(map! :mode org-mode
+      (:prefix "C-c"
+               (:prefix "t"
+                :desc "new table" "n" 'org-table-create
+                :desc "add column" "c" 'org-table-insert-column
+                :desc "add row" "r" 'org-table-insert-row
+                :desc "delete column" "C" 'org-table-delete-column
+                :desc "delete row" "R" 'org-table-kill-row
+                :desc "move column left" "h" 'org-table-move-column-left
+                :desc "move column right" "l" 'org-table-move-column-right
+                :desc "move row up" "k" 'org-table-move-row-up
+                :desc "move row down" "j" 'org-table-move-row-down)))
+(global-set-key (kbd "C-c i") (lambda () (interactive) (find-file "~/org/inbox.org")))
 ;;; which-key decribtion
 (which-key-add-key-based-replacements
   "C-x RET" "coding system"
@@ -349,13 +366,19 @@
   "C-x t" "toggle"
   "C-x n" "notes"
   "C-x v" "git"
-  "C-c b" "buffers"
-  "C-c m" "marks/bookmakrs"
-  "C-c a" "gptel"
-  "C-c s" "search"
+  "C-x b" "buffers"
+  "C-x m" "marks/bookmakrs"
+  "C-x a" "gptel"
+  "C-x s" "search"
   "C-c @" "outlines"
-  "C-c l" "lsp"
   )
+(add-hook! org-mode-hook 'lambda ()
+  (which-key-add-key-based-replacements
+    "C-c l" "org cmds"
+    "C-c i" "inbox"
+    "C-c t" "tables"
+    )
+)
 
 ;; tips and tricks
 ;; emacs模式技巧

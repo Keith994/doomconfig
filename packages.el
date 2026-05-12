@@ -44,6 +44,8 @@
 (package! shell-maker)
 (package! acp)
 (package! agent-shell)
+(package! org-ql)
+(package! org-superstar)
 ;; (package! anki-editor
 ;;   :recipe (:host github :repo "anki-editor/anki-editor"))
 ;; (package! jupyter)
